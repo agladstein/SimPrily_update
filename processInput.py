@@ -9,6 +9,26 @@ verbose = 0
 times = []
 
 
+def create_hist_df(histogram_name):
+    histogram_df = pd.read_csv(histogram_name, sep='\t')
+    return histogram_df
+
+def create_param_hist(histogram_df, param):
+    bins = histogram_df[param]
+    density_head = str(param) + '.density'
+    density = histogram_df[density_head]
+    probability = density / sum(density)
+    return [bins, probability]
+
+def sample_from_hist(histogram_df, param):
+    bins = histogram_df[param]
+    density_head = str(param) + '.density'
+    density = histogram_df[density_head]
+    probability = density / sum(density)
+    value = np.random.choice(bins, p=probability)
+    return value
+
+
 # TODO: Make sure this is actually not used anywhere then delete
 def get_sample_and_discovery(in_file):
     temp_file = read_model_file(in_file)
