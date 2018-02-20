@@ -22,7 +22,6 @@ verbos = 0
 
 
 def main(args):
-
     chr_number = 1
     # Use dictionary keys instead of index keys for args
     args = process_args(args)
@@ -36,7 +35,7 @@ def main(args):
     path = args['path']
     [sim_data_dir, germline_out_dir, sim_results_dir] = create_sim_directories(path)
 
-    processedData =  process_input_files(args['param file'], args['model file'], args)
+    processedData = process_input_files(args['param file'], args['model file'], args)
 
     using_pseudo_array = True
     if not processedData.get('discovery') and not processedData.get('sample') and not processedData.get('daf'):
@@ -44,19 +43,20 @@ def main(args):
 
     debugPrint(3, "Finished processing input\nprocessedData: ", processedData)
 
-
     ### Create a list of Sequence class instances. These will contain the bulk of all sequence-based data
     sequences = create_sequences(processedData)
     names = [seq.name for seq in sequences]
 
     n_d = sum([1 for seq in sequences if seq.type == 'discovery'])
 
-    debugPrint(1,'name\ttotal\tpanel\tgenotyped')
+    debugPrint(1, 'name\ttotal\tpanel\tgenotyped')
     for seq in sequences:
-        debugPrint(1,'{}\t{}\t{}\t{}'.format(seq.name, seq.tot, seq.panel, seq.genotyped))
+        debugPrint(1, '{}\t{}\t{}\t{}'.format(seq.name, seq.tot, seq.panel, seq.genotyped))
 
     total = sum([seq.tot for seq in sequences])
-    debugPrint(1, 'total samples: {}'.format(sum([seq.genotyped for seq in sequences if seq.type=='discovery'] + [seq.tot for seq in sequences if seq.type=='sample'])))
+    debugPrint(1, 'total samples: {}'.format(sum(
+        [seq.genotyped for seq in sequences if seq.type == 'discovery'] + [seq.tot for seq in sequences if
+                                                                           seq.type == 'sample'])))
 
     ### Define simulation size
     length = processedData['length']
@@ -86,7 +86,7 @@ def main(args):
 
             ### Get data from the simulations
             profile(prof_option, path, job, "start_set_seq_bits")
-            seq_alleles = AllelesMacsSwig(nbss, sim, total) 
+            seq_alleles = AllelesMacsSwig(nbss, sim, total)
             set_seq_bits(sequences, seq_alleles)
             profile(prof_option, path, job, "end_set_seq_bits")
 
@@ -102,7 +102,7 @@ def main(args):
         elif sim_option == 'macs':
             ### Run macs and make bitarray
             profile(prof_option, path, job, "start_run_macs")
-            [sequences,position] = run_macs(macs_args, sequences)
+            [sequences, position] = run_macs(macs_args, sequences)
             profile(prof_option, path, job, "end_run_macs")
             nbss = len(sequences[0].bits) / (sequences[0].tot)
 
@@ -141,36 +141,35 @@ def main(args):
             asc_panel_bits = set_panel_bits(nbss, sequences)
 
             profile(prof_option, path, job, "end_set_panel_bits")
-            debugPrint(1,'Number of chromosomes in asc_panel: {}'.format(asc_panel_bits.length()/nbss))
-
+            debugPrint(1, 'Number of chromosomes in asc_panel: {}'.format(asc_panel_bits.length() / nbss))
 
             ### Get pseudo array sites
-            debugPrint(2,'Making pseudo array')
+            debugPrint(2, 'Making pseudo array')
             profile(prof_option, path, job, "start_pseudo_array_bits")
 
-            [pos_asc, nbss_asc, avail_site_indices, avail_sites] = pseudo_array_bits(asc_panel_bits, processedData['daf'], sim_positions, SNPs)
+            [pos_asc, nbss_asc, avail_site_indices, avail_sites] = pseudo_array_bits(asc_panel_bits,
+                                                                                     processedData['daf'],
+                                                                                     sim_positions, SNPs)
             profile(prof_option, path, job, "end_pseudo_array_bits")
             nb_avail_sites = len(avail_sites)
-            SNPs_exceed_available_sites = ( len(SNPs) >= nb_avail_sites )
+            SNPs_exceed_available_sites = (len(SNPs) >= nb_avail_sites)
         else:
             SNPs = []
             SNPs_exceed_available_sites = False
-
 
     if using_pseudo_array:
         profile(prof_option, path, job, "start_set_asc_bits")
         set_asc_bits(sequences, nbss_asc, pos_asc, avail_site_indices)
         profile(prof_option, path, job, "end_set_asc_bits")
 
-
     debugPrint(1, 'Calculating summary statistics')
     ##########################################################################
     ###################### Calculate summary statistics ######################
     ##########################################################################
-    res, head  = [], []
+    res, head = [], []
 
     ### Calculate summary stats from genomes
-    if nbss > 0:   # Simulations must contain at least one segregating site
+    if nbss > 0:  # Simulations must contain at least one segregating site
         profile(prof_option, path, job, "start_store_segregating_site_stats")
         stat_tools.store_segregating_site_stats(sequences, res, head)
         profile(prof_option, path, job, "end_store_segregating_site_stats")
@@ -188,7 +187,7 @@ def main(args):
             stat_tools.store_array_FSTs(sequences, res, head)
             profile(prof_option, path, job, "end_store_array_FSTs")
 
-        debugPrint(2,'Making ped and map files')
+        debugPrint(2, 'Making ped and map files')
         ped_file_name = '{0}/macs_asc_{1}_chr{2}.ped'.format(sim_data_dir, job, str(chr_number))
         map_file_name = '{0}/macs_asc_{1}_chr{2}.map'.format(sim_data_dir, job, str(chr_number))
         out_file_name = '{0}/macs_asc_{1}_chr{2}'.format(germline_out_dir, job, str(chr_number))
@@ -208,7 +207,7 @@ def main(args):
         ### Use Germline to find IBD on pseduo array ped and map files
         do_i_run_germline = int(args['germline'])
 
-        debugPrint(1,'run germline? {}'.format("True" if do_i_run_germline else "False"))
+        debugPrint(1, 'run germline? {}'.format("True" if do_i_run_germline else "False"))
 
         if (do_i_run_germline == True):
             ########################### <CHANGE THIS LATER> ###########################
@@ -233,17 +232,15 @@ def main(args):
             stat_tools.store_IBD_stats(stats, IBD_pairs, IBD_dict, res, head, min_val=30)
             profile(prof_option, path, job, "end_store_IBD_stats")
 
-        debugPrint(1,'finished calculating ss')
+        debugPrint(1, 'finished calculating ss')
 
-
-    #Previously used for separate files
+    # Previously used for separate files
     '''
     write_results_file(results_sims_dir, job, res, head)
     write_sim_file(sim_values_dir, job, processedData['param_dict'])
     '''
-    #Combined file
+    # Combined file
     write_sim_results_file(sim_results_dir, job, processedData['param_dict'], res, head)
-    
 
     print('')
     print('#########################')
@@ -252,6 +249,7 @@ def main(args):
     print('')
 
     profile(prof_option, path, job, "COMPLETE")
+
 
 if __name__ == '__main__':
     main(argv)

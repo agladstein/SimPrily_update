@@ -1,6 +1,8 @@
 import sys
 from collections import OrderedDict
 from operator import itemgetter
+import pandas as pd
+import numpy as np
 
 from main_tools.housekeeping import debugPrint, set_seed
 from main_tools.my_random import MY_RANDOM as random
@@ -13,12 +15,14 @@ def create_hist_df(histogram_name):
     histogram_df = pd.read_csv(histogram_name, sep='\t')
     return histogram_df
 
+
 def create_param_hist(histogram_df, param):
     bins = histogram_df[param]
     density_head = str(param) + '.density'
     density = histogram_df[density_head]
     probability = density / sum(density)
     return [bins, probability]
+
 
 def sample_from_hist(histogram_df, param):
     bins = histogram_df[param]
@@ -70,7 +74,7 @@ def read_params_file(in_file):
     :return: a list with each line as a single string object
     """
     fl = open(in_file, "r")
-    model_params_dict = {}
+    model_params_dict = OrderedDict()
     for line in fl:
         if "=" in line:
             model_params_dict[line.split("=")[0].strip()] = line.split("=")[1].strip()
@@ -139,6 +143,20 @@ def prior_to_param_value(input_param_str):
     return return_value
 
 
+def posterior_to_param_value(histogram_name, param):
+
+    histogram_df = create_hist_df(histogram_name)
+    return_value = sample_from_hist(histogram_df, param)
+
+    return return_value
+
+
+def posterior_to_param_value_bounded(temp_num, temp_low):
+
+    temp_num = temp_num.strip()
+
+    return
+
 def sci_to_float(s):
     """
     Converts a string of the form 'aEb' into an int given by a*10^b
@@ -146,7 +164,7 @@ def sci_to_float(s):
     s = s.replace("e", "E")
     if 'E' in s:
         s = s.split('E')
-        return float(s[0]) * 10**float(s[1])
+        return float(s[0]) * 10 ** float(s[1])
     return s
 
 
@@ -228,11 +246,11 @@ def define_non_time_priors(model_params_dict_raw):
     :TODO: This is the section of code where variables can relate to each other, issue #8
     """
 
-    model_params_dict = {}
+    model_params_dict = OrderedDict()
     for param_raw_value in model_params_dict_raw:
         # if it has _t in it, ignore for now
         if param_raw_value[-2:].lower() == "_t":
-            model_params_dict[param_raw_value[:-2]+"_t"] = model_params_dict_raw[param_raw_value]
+            model_params_dict[param_raw_value[:-2] + "_t"] = model_params_dict_raw[param_raw_value]
             continue
         # TODO: check to make sure value is stripped before here
         prior = model_params_dict_raw[param_raw_value]
@@ -248,7 +266,7 @@ def define_non_time_priors(model_params_dict_raw):
 
 
 def filter_out_timed_params(model_params_dict_raw):
-    model_params_dict = {}
+    model_params_dict = OrderedDict()
     for param in model_params_dict_raw:
         if not param.endswith("_t"):
             model_params_dict[param] = model_params_dict_raw[param]
@@ -360,7 +378,7 @@ def gather_pop_names(model_data_raw):
             names.append(argument.split(",")[2])
         if "-I" in flag:
             size_str = argument.split(',')[1]
-            size = int(size_str)+1
+            size = int(size_str) + 1
     if not names:
         names = list(range(1, size))
 
@@ -523,7 +541,6 @@ def scale_argument(flag, argument_raw, ne):
 
 # TODO: Make this code simpler
 def scale_flags(flags_raw):
-
     # find scale value
     ne = find_scale_value(flags_raw)
 
@@ -534,7 +551,6 @@ def scale_flags(flags_raw):
         debugPrint(3, "FLAG:  {}: {}".format(flag, flags_raw[flag]))
         arguments = []
         for argument_raw in flags_raw[flag]:
-
             argument = generate_argument(argument_raw, flag, ne)
 
             arguments.append(argument)
