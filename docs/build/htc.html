@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>High Throughput Computing &mdash; SimPrily 1.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="SimPrily 1.0.1 documentation" href="index.html"/>
+        <link rel="next" title="Calculating summary statistics on real data" href="real.html"/>
+        <link rel="prev" title="Usage" href="usage.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SimPrily
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install and Environment Set up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">High Throughput Computing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#open-science-grid">Open Science Grid</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#test-with-interactive-singularity-container">Test with interactive Singularity container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submit-a-pegasus-workflow">Submit a Pegasus workflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#example-workflow-submissions">Example workflow submissions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#monitoring-and-debugging">Monitoring and Debugging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-the-pegasus-workflow-works">How the Pegasus workflow works</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#recommendations-for-other-htc-workflows">Recommendations for other HTC workflows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="real.html">Calculating summary statistics on real data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_docker.html">Tutorial with Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">For Developers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SimPrily</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>High Throughput Computing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/htc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="high-throughput-computing">
+<h1>High Throughput Computing<a class="headerlink" href="#high-throughput-computing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="open-science-grid">
+<h2>Open Science Grid<a class="headerlink" href="#open-science-grid" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Create an OSG Connect account. <a class="reference external" href="https://osgconnect.net/signup">https://osgconnect.net/signup</a></li>
+<li>Join the project SimPrily</li>
+<li>Create an <a class="reference external" href="https://support.opensciencegrid.org/support/solutions/articles/12000027675-generate-ssh-key-pair-and-add-the-public-key-to-your-account">ssh key pair</a></li>
+</ol>
+<p>Log onto Open Science Grid Connect</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ssh</span> <span class="n">user</span><span class="o">-</span><span class="n">name</span><span class="nd">@login01</span><span class="o">.</span><span class="n">osgconnect</span><span class="o">.</span><span class="n">net</span>
+</pre></div>
+</div>
+<p>Clone the entire repository. <em>We only need the pegasus_workflow directory</em></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">agladstein</span><span class="o">/</span><span class="n">SimPrily</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<div class="section" id="test-with-interactive-singularity-container">
+<h3>Test with interactive Singularity container<a class="headerlink" href="#test-with-interactive-singularity-container" title="Permalink to this headline">¶</a></h3>
+<p>Start the Singularity container and run a small test.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[agladstein@login02 ~]$ singularity shell --home $PWD:/srv --pwd /srv /cvmfs/singularity.opensciencegrid.org/agladstein/simprily\:latest
+Singularity: Invoking an interactive shell within container...
+
+$ bash
+agladstein@login02:~$ export PATH=/usr/local/bin:/usr/bin:/bin
+agladstein@login02:~$ python /app/simprily.py examples/eg2/Param_file_eg2.txt examples/eg2/model_file_eg2.csv 2 out_dir
+</pre></div>
+</div>
+</div>
+<div class="section" id="submit-a-pegasus-workflow">
+<h3>Submit a Pegasus workflow<a class="headerlink" href="#submit-a-pegasus-workflow" title="Permalink to this headline">¶</a></h3>
+<p>All components of the Pegasus workflow are located in the directory
+<code class="docutils literal"><span class="pre">pegasus_workflow</span></code>.</p>
+<p>Start the workfow by running <code class="docutils literal"><span class="pre">submit</span></code> on the command line from the <code class="docutils literal"><span class="pre">pegasus_workflow</span></code> directory.
+There are 3 required arguments and 2 optional arguments</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">submit</span> <span class="o">-</span><span class="n">p</span> <span class="n">PARAM</span> <span class="o">-</span><span class="n">m</span> <span class="n">MODEL</span> <span class="o">-</span><span class="n">j</span> <span class="n">NUM</span> <span class="p">[</span><span class="o">-</span><span class="n">g</span> <span class="n">MAP</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="n">ARRAY</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><strong>Required</strong></p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-p <var>PARAM</var></span></kbd></td>
+<td>The location of the parameter file</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-m <var>MODEL</var></span></kbd></td>
+<td>The location of the model file</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-j <var>NUM</var></span></kbd></td>
+<td>The number of jobs to run. The <code class="docutils literal"><span class="pre">ID</span></code> will go from 1 to <code class="docutils literal"><span class="pre">NUM</span></code>.</td></tr>
+</tbody>
+</table>
+<p><strong>Optional</strong></p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-g <var>MAP</var></span></kbd></td>
+<td>The location of the genetic map file</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-a <var>ARRAY</var></span></kbd></td>
+<td>The location of the array template file, in bed form</td></tr>
+</tbody>
+</table>
+<p><em>We recommend that all testing be done before submiting workflows to OSG. Therefore we do not include the verbose options. Pegasus provides run information, so we do not include the profile option with the OSG workflow.</em></p>
+<div class="section" id="example-workflow-submissions">
+<h4>Example workflow submissions<a class="headerlink" href="#example-workflow-submissions" title="Permalink to this headline">¶</a></h4>
+<p>e.g. (No pseudo array and no recombination map)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">submit</span> <span class="o">-</span><span class="n">p</span> <span class="o">../</span><span class="n">examples</span><span class="o">/</span><span class="n">eg2</span><span class="o">/</span><span class="n">param_file_eg2</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">m</span> <span class="o">../</span><span class="n">examples</span><span class="o">/</span><span class="n">eg2</span><span class="o">/</span><span class="n">model_file_eg2</span><span class="o">.</span><span class="n">csv</span> <span class="o">-</span><span class="n">j</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<p>e.g. (include pseudo array, but no recombination map)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">submit</span> <span class="o">-</span><span class="n">p</span> <span class="o">../</span><span class="n">examples</span><span class="o">/</span><span class="n">eg2</span><span class="o">/</span><span class="n">param_file_eg2_asc</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">m</span> <span class="o">../</span><span class="n">examples</span><span class="o">/</span><span class="n">eg2</span><span class="o">/</span><span class="n">model_file_eg2_asc</span><span class="o">.</span><span class="n">csv</span> <span class="o">-</span><span class="n">j</span> <span class="mi">10</span> <span class="o">-</span><span class="n">a</span> <span class="o">../</span><span class="n">array_template</span><span class="o">/</span><span class="n">ill_650_test</span><span class="o">.</span><span class="n">bed</span>
+</pre></div>
+</div>
+<p>e.g. (recombination map, but no pseudo array)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">submit</span> <span class="o">-</span><span class="n">p</span> <span class="o">../</span><span class="n">examples</span><span class="o">/</span><span class="n">eg2</span><span class="o">/</span><span class="n">param_file_eg2</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">m</span> <span class="o">../</span><span class="n">examples</span><span class="o">/</span><span class="n">eg2</span><span class="o">/</span><span class="n">model_file_eg2</span><span class="o">.</span><span class="n">csv</span> <span class="o">-</span><span class="n">j</span> <span class="mi">10</span> <span class="o">-</span><span class="n">g</span> <span class="o">../</span><span class="n">genetic_map_b37</span><span class="o">/</span><span class="n">genetic_map_GRCh37_chr1</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">macshs</span>
+</pre></div>
+</div>
+<p>e.g. (include pseudo array, and recombination map)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">submit</span> <span class="o">-</span><span class="n">p</span> <span class="o">../</span><span class="n">examples</span><span class="o">/</span><span class="n">eg2</span><span class="o">/</span><span class="n">param_file_eg2_asc</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">m</span> <span class="o">../</span><span class="n">examples</span><span class="o">/</span><span class="n">eg2</span><span class="o">/</span><span class="n">model_file_eg2_asc</span><span class="o">.</span><span class="n">csv</span> <span class="o">-</span><span class="n">j</span> <span class="mi">10</span> <span class="o">-</span><span class="n">a</span> <span class="o">../</span><span class="n">array_template</span><span class="o">/</span><span class="n">ill_650_test</span><span class="o">.</span><span class="n">bed</span> <span class="o">-</span><span class="n">g</span> <span class="o">../</span><span class="n">genetic_map_b37</span><span class="o">/</span><span class="n">genetic_map_GRCh37_chr1</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">macshs</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="monitoring-and-debugging">
+<h3>Monitoring and Debugging<a class="headerlink" href="#monitoring-and-debugging" title="Permalink to this headline">¶</a></h3>
+<p>To find the run times of the executable:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pegasus</span><span class="o">-</span><span class="n">statistics</span> <span class="o">-</span><span class="n">s</span> <span class="nb">all</span>
+</pre></div>
+</div>
+<p>Then, look at <code class="docutils literal"><span class="pre">Transformation</span> <span class="pre">statistics</span></code>.</p>
+</div>
+<div class="section" id="how-the-pegasus-workflow-works">
+<h3>How the Pegasus workflow works<a class="headerlink" href="#how-the-pegasus-workflow-works" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">submit</span></code> -&gt; <code class="docutils literal"><span class="pre">tools/dax-generator</span></code> -&gt; <code class="docutils literal"><span class="pre">wrappers/run-sim.sh</span></code></p>
+<p><code class="docutils literal"><span class="pre">submit</span></code> will run <code class="docutils literal"><span class="pre">tools/dax-generator</span></code>, which constructs the workflow. The <code class="docutils literal"><span class="pre">dax-generator</span></code> is the main Pegasus file.
+The <code class="docutils literal"><span class="pre">dax-generator</span></code> creates the HTCondor dag file.
+It also tells Pegasus where the local files are and transfers files (from submit host to compute node) so they are available for the job.
+It also defines how to handle output files.</p>
+<p><code class="docutils literal"><span class="pre">wrappers/run-sim.sh</span></code> is the wrapper that runs in the container. It modifies the environment, and runs SimPrily.</p>
+</div>
+</div>
+<div class="section" id="recommendations-for-other-htc-workflows">
+<h2>Recommendations for other HTC workflows<a class="headerlink" href="#recommendations-for-other-htc-workflows" title="Permalink to this headline">¶</a></h2>
+<p><em>coming soon</em></p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="real.html" class="btn btn-neutral float-right" title="Calculating summary statistics on real data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usage.html" class="btn btn-neutral" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Ariella Gladstein.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

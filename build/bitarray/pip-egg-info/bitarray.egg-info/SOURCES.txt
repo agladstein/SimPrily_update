@@ -1,0 +1,7 @@
+bitarray/__init__.py
+bitarray/_bitarray.c
+bitarray/test_bitarray.py
+pip-egg-info/bitarray.egg-info/PKG-INFO
+pip-egg-info/bitarray.egg-info/SOURCES.txt
+pip-egg-info/bitarray.egg-info/dependency_links.txt
+pip-egg-info/bitarray.egg-info/top_level.txt
