@@ -8,7 +8,7 @@ set -e # quits at first error
 GOAL=$1
 QUEMAX=$2
 CHR=$3
-OUT=/rsgrps/mfh4/Ariella/SimPrily_update/${CHR}
+OUT=/rsgrps/mfh4/Ariella/SimPrily_update/chr${CHR}
 
 set -f
 
@@ -53,9 +53,11 @@ if [ -e switch.txt ] ; then
         else
 
             cd /home/u15/agladstein
-            echo "rsync -za SimPrily_update /xdisk/agladstein/SimPrily_update; cd /xdisk/agladstein/SimPrily_update"
-            rsync -za SimPrily_update /xdisk/agladstein/SimPrily_update
+	    echo 'pwd: 'pwd
+            echo "rsync -za SimPrily_update/ /xdisk/agladstein/SimPrily_update; cd /xdisk/agladstein/SimPrily_update"
+            rsync -za SimPrily_update/ /xdisk/agladstein/SimPrily_update
             cd /xdisk/agladstein/SimPrily_update
+	    echo 'pwd: 'pwd
 
             echo "Submit to standard"
             echo "$qsub update_test/PBS/run_sims_update_chr${CHR}.pbs"
