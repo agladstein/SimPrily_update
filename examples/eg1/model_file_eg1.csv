@@ -8,6 +8,8 @@
 -n,1,A,
 -n,2,B,
 -n,3,C,
--ej_1,AB_t,2,1,
--ej_2,AC_t,3,1
+#-ej_1,AB_t,2,1,
+#-ej_2,AC_t,3,1
+-ej,AB_t,2,1,
+-ej,AC_t,3,1
 -en,AN_t,1,AN

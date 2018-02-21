@@ -1,0 +1,7 @@
+A = ABC_test_1_model0_MarginalPosteriorDensities_Obs0.txt
+B = ABC_test_1_model0_MarginalPosteriorDensities_Obs0.txt
+C = ABC_test_1_model0_MarginalPosteriorDensities_Obs0.txt
+AB_t = ABC_test_1_model0_MarginalPosteriorDensities_Obs0.txt
+AC_t = ABC_test_1_model0_MarginalPosteriorDensities_Obs0.txt
+AN_t = ABC_test_1_model0_MarginalPosteriorDensities_Obs0.txt
+AN = ABC_test_1_model0_MarginalPosteriorDensities_Obs0.txt

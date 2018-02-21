@@ -117,6 +117,8 @@ def get_param_value_un_bounded(model_params_dict, param_key):
     if ":" in param_raw_value:
         # This means you want range
         unscaled_param_value = prior_to_param_value(param_raw_value)
+    elif "MarginalPosteriorDensities" in param_raw_value:
+        unscaled_param_value = posterior_to_param_value(param_raw_value, param_key)
     else:
         unscaled_param_value = str(sci_to_float(param_raw_value))
 
@@ -146,7 +148,7 @@ def prior_to_param_value(input_param_str):
 def posterior_to_param_value(histogram_name, param):
 
     histogram_df = create_hist_df(histogram_name)
-    return_value = sample_from_hist(histogram_df, param)
+    return_value = str(sample_from_hist(histogram_df, param))
 
     return return_value
 
@@ -257,6 +259,8 @@ def define_non_time_priors(model_params_dict_raw):
         if ":" in prior:
             # This means you want range
             unscaled_param_value = prior_to_param_value(prior)
+        elif "MarginalPosteriorDensities" in prior:
+            unscaled_param_value = posterior_to_param_value(prior, param_raw_value)
         else:
             unscaled_param_value = str(sci_to_float(prior))
 
