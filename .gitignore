@@ -3,3 +3,5 @@
 .idea/
 */*.pyc
 output_dir/
+update_test/switch.txt
+crontab.log

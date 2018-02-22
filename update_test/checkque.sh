@@ -28,17 +28,16 @@ if [ -e switch.txt ] ; then
 
     #check number of completed simulations
     echo "Check for ${GOAL} completed runs in $OUT"
-    COMP_HPC=$(find ${OUT} -type f | wc -l)
-    echo "${COMP_HPC} runs have completed"
+    COMP=$(find ${OUT} -type f | wc -l)
+    echo "${COMP} runs have completed"
 
     if [ "$COMP" -ge "$GOAL" ]; then
-        echo "Goal completed"
         rm switch.txt
         echo "Goal completed. ${COMP} runs have completed in $OUT." | sendmail agladstein@email.arizona.edu
         exit
     else
         #check number of jobs in que
-        JOBS=$($qstat | grep "agladstein" | cut -d " " -f1)
+	JOBS=$($qstat | grep "agladstein" | cut -d " " -f1)
         echo $JOBS
         n=0
         for j in $JOBS; do
