@@ -13,6 +13,11 @@ import pandas as pd
 
 
 def list_files(d):
+    """
+    list full paths of files in directory
+    :param d: path to directory 
+    :return: list of files
+    """
     if os.path.exists(d):
         files = [os.path.join(d, f) for f in os.listdir(d)]
         return files
@@ -24,11 +29,11 @@ def list_files(d):
 def get_results_header(file_name):
     """
     Get the header line from a file
-    :param path_sim_results: full or relative path to directory with simulation results files
     :param file_name: result file from one simulation
     :return: header: the header of one of the simulation results files in the directory.
     This contains the names of the parameters and summary statistics.
     """
+
     if os.path.isfile(file_name):
         header = linecache.getline(file_name, 1)
         return header
@@ -57,7 +62,6 @@ def get_second_line(file_name, header):
     """
     :param header: the header of one of the simulation results files in the directory.
     This contains the names of the parameters and summary statistics.
-    :param path_sim_results: full or relative path to directory with simulation results files.
     :param file_name: result file from one simulation
     :return: second_line: 2nd line of results file containing the parameter values and summary statistics 
     """
@@ -74,6 +78,7 @@ def combine_sim_results(path_sim_results, files_sim_results):
     Combine the simulation results into one file.
     This function checks if headers match, and if the second line has the same number of columns as the header.
     :param path_sim_results: full or relative path to directory with simulation results files.
+    :param files_sim_results: list of full paths of simulation results files.
     :return: Writes a new file called 'results_combined.txt' in the provided path.
     """
 
@@ -102,7 +107,14 @@ def combine_sim_results(path_sim_results, files_sim_results):
     return
 
 
-def create_real_stats_file(files_sim_results, param_file):
+def create_real_stats_file(files_sim_results, param_file, path_sim_results):
+    """
+    
+    :param files_sim_results: list of full paths of simulation results files.
+    :param param_file: param file that was used to run the simulations.
+    :param path_sim_results: full or relative path to directory with simulation results files.
+    :return: real_stats_df: dataframe of one randomly chosen simulation results file without the parameters.
+    """
 
     param_num = sum(1 for line in open(param_file))
 
@@ -111,7 +123,12 @@ def create_real_stats_file(files_sim_results, param_file):
     cross_val_df = pd.read_csv(cross_val_file_name, sep='\t')
     real_stats_df = cross_val_df.iloc[:, param_num:]
 
-    return real_stats_df
+    real_stats_file_name = '{}/results_real.txt'.format(path_sim_results)
+    real_param_stats_file_name = '{}/results_param_real.txt'.format(path_sim_results)
+    real_stats_df.to_csv(real_stats_file_name, sep='\t', index=False)
+    cross_val_df.to_csv(real_param_stats_file_name, sep='\t', index=False)
+
+    return
 
 
 def main():
@@ -121,9 +138,7 @@ def main():
 
     files_sim_results = list_files(path_sim_results)
     combine_sim_results(path_sim_results, files_sim_results)
-    real_stats_df = create_real_stats_file(files_sim_results, param_file)
-    real_stats_file_name = '{}/results_real.txt'.format(path_sim_results)
-    real_stats_df.to_csv(real_stats_file_name, sep='\t', index=False)
+    create_real_stats_file(files_sim_results, param_file, path_sim_results)
 
 if __name__ == '__main__':
     main()
