@@ -39,6 +39,23 @@ def get_results_header(file_name):
         return header
     else:
         print('{} does not exist'.format(file_name))
+        exit()
+
+
+def get_second_line(file_name, header):
+    """
+    :param header: the header of one of the simulation results files in the directory.
+    This contains the names of the parameters and summary statistics.
+    :param file_name: result file from one simulation
+    :return: second_line: 2nd line of results file containing the parameter values and summary statistics 
+    """
+
+    if os.path.isfile(file_name):
+        first_line = linecache.getline(file_name, 1)
+        if header == first_line:
+            second_line = linecache.getline(file_name, 2)
+            return second_line
+    return None
 
 
 def col_num_equal(header, second_line):
@@ -56,21 +73,6 @@ def col_num_equal(header, second_line):
         return True
     else:
         return False
-
-
-def get_second_line(file_name, header):
-    """
-    :param header: the header of one of the simulation results files in the directory.
-    This contains the names of the parameters and summary statistics.
-    :param file_name: result file from one simulation
-    :return: second_line: 2nd line of results file containing the parameter values and summary statistics 
-    """
-
-    if os.path.isfile(file_name):
-        first_line = linecache.getline(file_name, 1)
-        if header == first_line:
-            second_line = linecache.getline(file_name, 2)
-            return second_line
 
 
 def combine_sim_results(path_sim_results, files_sim_results):
@@ -97,9 +99,7 @@ def combine_sim_results(path_sim_results, files_sim_results):
             second_line = get_second_line(file_name, header)
             if second_line is not None and col_num_equal(header, second_line):
                 file_sim_combined.write(second_line)
-
         file_sim_combined.close()
-
     else:
         print('{} does not exist'.format(path_sim_results))
         exit()
@@ -107,26 +107,62 @@ def combine_sim_results(path_sim_results, files_sim_results):
     return
 
 
-def create_real_stats_file(files_sim_results, param_file, path_sim_results):
+def create_observed_df(files_sim_results):
+    """
+    Randomly pick simulation to use as observed data.
+    :param files_sim_results: list of full paths of simulation results files.
+    :return: observed_df: dataframe of parameter and summary stats from one simulation.
+    """
+
+    x = randint(0, len(files_sim_results))
+    observed_file_name = files_sim_results[x]
+    observed_df = pd.read_csv(observed_file_name, sep='\t')
+
+    return observed_df
+
+
+def get_param_stats_num(param_file, observed_df):
+    """
+
+    :param param_file: param file that was used to run the simulations.
+    :return: 
+    """
+
+    param_num = sum(1 for line in open(param_file))
+    stats_num = len(observed_df.columns) - param_num
+    return [param_num, stats_num]
+
+
+def run_PLS(path_sim_results, param_num, stats_num):
+
+    directory = '{}/'.format(path_sim_results)
+    filename = 'results_combined.txt'
+    start_stats = param_num + 1
+    end_stats = param_num + stats_num
+    start_param = 1
+    end_param = param_num
+    numComp = end_stats - start_stats
+
+    print('Rscript', 'findPLS.r', directory, filename, start_stats, end_stats, start_param, end_param, numComp)
+
+    return
+
+
+def create_real_stats_file(observed_df, param_num, path_sim_results):
     """
     
-    :param files_sim_results: list of full paths of simulation results files.
-    :param param_file: param file that was used to run the simulations.
+    :param observed_df: dataframe of parameter and summary stats from one simulation.
+    :param param_num: number of parameters
     :param path_sim_results: full or relative path to directory with simulation results files.
     :return: real_stats_df: dataframe of one randomly chosen simulation results file without the parameters.
     """
 
-    param_num = sum(1 for line in open(param_file))
-
-    x = randint(0, len(files_sim_results))
-    cross_val_file_name = files_sim_results[x]
-    cross_val_df = pd.read_csv(cross_val_file_name, sep='\t')
-    real_stats_df = cross_val_df.iloc[:, param_num:]
+    real_stats_df = observed_df.iloc[:, param_num:]
 
     real_stats_file_name = '{}/results_real.txt'.format(path_sim_results)
     real_param_stats_file_name = '{}/results_param_real.txt'.format(path_sim_results)
     real_stats_df.to_csv(real_stats_file_name, sep='\t', index=False)
-    cross_val_df.to_csv(real_param_stats_file_name, sep='\t', index=False)
+    observed_df.to_csv(real_param_stats_file_name, sep='\t', index=False)
 
     return
 
@@ -137,8 +173,16 @@ def main():
     param_file = argv[2]
 
     files_sim_results = list_files(path_sim_results)
+
     combine_sim_results(path_sim_results, files_sim_results)
-    create_real_stats_file(files_sim_results, param_file, path_sim_results)
+
+    observed_df = create_observed_df(files_sim_results)
+
+    [param_num, stats_num] = get_param_stats_num(param_file, observed_df)
+
+    run_PLS(path_sim_results, param_num, stats_num)
+
+    create_real_stats_file(observed_df, param_num, path_sim_results)
 
 if __name__ == '__main__':
     main()
