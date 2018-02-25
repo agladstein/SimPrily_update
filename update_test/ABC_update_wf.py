@@ -10,6 +10,7 @@ import re
 import sh
 from random import randint
 import pandas as pd
+import subprocess
 
 
 def list_files(d):
@@ -167,7 +168,8 @@ def run_PLS(path_sim_results, param_num, stats_num):
     end_stats = param_num + stats_num
     start_param = 1
     end_param = param_num
-    numComp = end_stats - start_stats
+    # numComp = end_stats - start_stats
+    numComp = 10
 
     print('Rscript', 'findPLS.r', directory, filename, start_stats, end_stats, start_param, end_param, numComp)
     return
@@ -211,8 +213,68 @@ def create_ABC_PLS_trans_config(path_sim_results, data_type):
     config_file.write('verbose\n')
 
     config_file.close()
+    return file_name
 
+
+def run_ABC_transform(file_name):
+    """
+    Run ABCtoolbox to transform the summary statistics to PLS components.
+    :param file_name: ABCtoolbox config file
+    :return: 
+    """
+
+    if os.path.isfile(file_name):
+        if os.path.isfile('./bin/ABCtoolbox'):
+            command = './bin/ABCtoolbox {}'.format(file_name)
+            print(command)
+            os.system(command)
+        else:
+            print('./bin/ABCtoolbox does not exist')
+            exit()
+    else:
+        print('{} does not exist'.format(file_name))
+        exit()
     return
+
+
+def create_ABC_estimate_config(path_sim_results, param_num):
+    """
+    Create ABCtoolbox config file for estimation.
+    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param param_num: number of parameters
+    :return: 
+    """
+
+    file_name = '{}/test_ABC_estimate.txt'.format(path_sim_results)
+
+    simName = '{}/results_combined_transformed.txt'.format(path_sim_results)
+    obsName = '{}/results_observed_transformed.txt'.format(path_sim_results)
+    params = '1-{}'.format(param_num)
+    outputPrefix = '{}/ABC_update_estimate_10pls_100ret_'.format(path_sim_results)
+    logFile = '{}/ABC_update_estimate_10pls_100ret.log'.format(path_sim_results)
+
+    try:
+        os.remove(file_name)
+    except OSError:
+        pass
+    config_file = open(file_name, 'a')
+
+    config_file.write('task estimate\n')
+    config_file.write('simName {}\n'.format(simName))
+    config_file.write('obsName {}\n'.format(obsName))
+    config_file.write('params {}\n'.format(params))
+    config_file.write('numRetained 100\n')
+    config_file.write('diracPeakWidth 0.01\n')
+    config_file.write('posteriorDensityPoints 100\n')
+    config_file.write('jointPosteriors A,B\n')
+    config_file.write('jointPosteriorDensityPoints 100\n')
+    config_file.write('writeRetained 0\n')
+    config_file.write('outputPrefix {}\n'.format(outputPrefix))
+    config_file.write('logFile {}\n'.format(logFile))
+    config_file.write('verbose\n')
+
+    config_file.close()
+    return file_name
 
 
 def main():
@@ -232,9 +294,13 @@ def main():
 
     run_PLS(path_sim_results, param_num, stats_num)
 
-    create_ABC_PLS_trans_config(path_sim_results, 'observed')
-    create_ABC_PLS_trans_config(path_sim_results, 'sim')
+    ABC_PLS_trans_observed_file_name = create_ABC_PLS_trans_config(path_sim_results, 'observed')
+    ABC_PLS_trans_sim_file_name = create_ABC_PLS_trans_config(path_sim_results, 'sim')
 
+    run_ABC_transform(ABC_PLS_trans_observed_file_name)
+    run_ABC_transform(ABC_PLS_trans_sim_file_name)
+
+    ABC_estimate_file_name = create_ABC_estimate_config(path_sim_results, param_num)
 
 if __name__ == '__main__':
     main()
