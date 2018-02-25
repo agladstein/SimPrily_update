@@ -1,0 +1,34 @@
+#!/bin/bash
+#PBS -N SimUpdate2
+#PBS -W group_list=mfh
+#PBS -q standard
+#PBS -J 1-1000
+#PBS -l cput=00:20:00
+#PBS -l walltime=00:20:00
+#PBS -l select=1:ncpus=1:mem=6gb
+#PBS -l place=pack:shared
+#PBS -j oe
+
+module load python/2/2.7.11
+
+cd $PBS_O_WORKDIR
+
+PBS_ID=$(echo ${PBS_JOBID} | cut -d '[' -f1)
+echo "PBS_ID: ${PBS_ID}"
+
+BUCKET_OUT_PATH=/rsgrps/mfh4/Ariella/SimPrily_update/chr2
+echo "BUCKET_OUT_PATH: ${BUCKET_OUT_PATH}"
+mkdir -p ${BUCKET_OUT_PATH}
+
+RUN_DIR=/xdisk/agladstein/SimPrily_update
+
+cd $RUN_DIR
+
+for i in {1..10}
+do
+    JOB_ID=${PBS_ID}_${PBS_ARRAY_INDEX}_${i}
+    echo "JOB_ID: ${JOB_ID}"
+    
+    echo "~/env/macss_env_ocelote_2.7.11/bin/python simprily.py -m update_test/input_files/model_chr2.csv -p update_test/input_files/param_chr2.txt -g genetic_map_b37/genetic_map_GRCh37_chr2.txt.macshs -i ${JOB_ID} -o ${BUCKET_OUT_PATH} -v"
+    ~/env/macss_env_ocelote_2.7.11/bin/python simprily.py -m update_test/input_files/model_chr2.csv -p update_test/input_files/param_chr2.txt -g genetic_map_b37/genetic_map_GRCh37_chr2.txt.macshs -i ${JOB_ID} -o ${BUCKET_OUT_PATH} -v
+done

@@ -1,16 +1,9 @@
-from sys import stderr
 from sys import argv
 import os.path
 import linecache
-import multiprocessing
-import functools
-from os import listdir
-import csv
-import re
-import sh
 from random import randint
 import pandas as pd
-import subprocess
+from collections import OrderedDict
 
 
 def list_files(d):
@@ -118,15 +111,16 @@ def create_observed_df(files_sim_results):
     x = randint(0, len(files_sim_results))
     observed_file_name = files_sim_results[x]
     observed_df = pd.read_csv(observed_file_name, sep='\t')
-
     return observed_df
 
 
 def get_param_stats_num(param_file, observed_df):
     """
-
+    Get number of parameters and statistics from simulation.
     :param param_file: param file that was used to run the simulations.
-    :return: 
+    :param observed_df: dataframe of parameter and summary stats from one simulation. 
+    :return: param_num: number of parameters
+    :return: stats_num: number of stats
     """
 
     param_num = sum(1 for line in open(param_file))
@@ -136,7 +130,7 @@ def get_param_stats_num(param_file, observed_df):
 
 def create_observed_stats_file(observed_df, param_num, path_sim_results):
     """
-    
+    Create file of 'observed' stats from dataframe from one simulation. 
     :param observed_df: dataframe of parameter and summary stats from one simulation.
     :param param_num: number of parameters
     :param path_sim_results: full or relative path to directory with simulation results files.
@@ -180,7 +174,7 @@ def create_ABC_PLS_trans_config(path_sim_results, data_type):
     Create ABCtoolbox config file to transform stats to PLS components.
     :param path_sim_results: full or relative path to directory with simulation results files.
     :param data_type: 'sim' or 'observed'
-    :return: 
+    :return: file_name: the name of the ABCtoolbox config file for PLS tranformation
     """
 
     if data_type == 'sim':
@@ -214,27 +208,6 @@ def create_ABC_PLS_trans_config(path_sim_results, data_type):
 
     config_file.close()
     return file_name
-
-
-def run_ABC_transform(file_name):
-    """
-    Run ABCtoolbox to transform the summary statistics to PLS components.
-    :param file_name: ABCtoolbox config file
-    :return: 
-    """
-
-    if os.path.isfile(file_name):
-        if os.path.isfile('./bin/ABCtoolbox'):
-            command = './bin/ABCtoolbox {}'.format(file_name)
-            print(command)
-            os.system(command)
-        else:
-            print('./bin/ABCtoolbox does not exist')
-            exit()
-    else:
-        print('{} does not exist'.format(file_name))
-        exit()
-    return
 
 
 def create_ABC_estimate_config(path_sim_results, param_num):
@@ -274,13 +247,74 @@ def create_ABC_estimate_config(path_sim_results, param_num):
     config_file.write('verbose\n')
 
     config_file.close()
-    return file_name
+    return [file_name, outputPrefix]
+
+
+def run_ABCtoolbox(file_name):
+    """
+    Run ABCtoolbox.
+    :param file_name: ABCtoolbox config file
+    :return: 
+    """
+
+    if os.path.isfile(file_name):
+        if os.path.isfile('./bin/ABCtoolbox'):
+            command = './bin/ABCtoolbox {}'.format(file_name)
+            print(command)
+            os.system(command)
+        else:
+            print('./bin/ABCtoolbox does not exist')
+            exit()
+    else:
+        print('{} does not exist'.format(file_name))
+        exit()
+    return
+
+
+def create_param_dict(param_file_name, outputPrefix):
+    """
+    Create a dictionary with the parameters and file with posterior density
+    :param param_file_name: original parameter file
+    :param outputPrefix: prefix given in ABCtoolbox config file for estimation
+    :return: param_dict: ordered dict with the parameters and file with posterior density
+    """
+
+    param_file = open(param_file_name, "r")
+    param_dict = OrderedDict()
+    for line in param_file:
+        if "=" in line:
+            param_dict[line.split("=")[0].strip()] = '{}model0_MarginalPosteriorDensities_Obs0.txt'.format(outputPrefix)
+    param_file.close()
+    return param_dict
+
+
+def create_param_file(param_dict, chrom):
+    """
+    Create new parameter file for simulations.
+    :param param_dict: ordered dict with the parameters and file with posterior density
+    :param chrom: the chromosome number of next chromosome to run
+    :return: 
+    """
+
+    input_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])))
+    new_param_file_name = '{}/param_chr{}'.format(input_dir, chrom)
+    try:
+        os.remove(new_param_file_name)
+    except OSError:
+        pass
+    new_param_file = open(new_param_file_name, 'a')
+
+    for line in param_dict:
+        new_param_file.write('{} = {}'.format(line, param_dict[line]))
+    new_param_file.close()
+    return
 
 
 def main():
 
     path_sim_results = argv[1]
     param_file = argv[2]
+    chrom = argv[3]
 
     files_sim_results = list_files(path_sim_results)
 
@@ -295,12 +329,16 @@ def main():
     run_PLS(path_sim_results, param_num, stats_num)
 
     ABC_PLS_trans_observed_file_name = create_ABC_PLS_trans_config(path_sim_results, 'observed')
+    run_ABCtoolbox(ABC_PLS_trans_observed_file_name)
+
     ABC_PLS_trans_sim_file_name = create_ABC_PLS_trans_config(path_sim_results, 'sim')
+    run_ABCtoolbox(ABC_PLS_trans_sim_file_name)
 
-    run_ABC_transform(ABC_PLS_trans_observed_file_name)
-    run_ABC_transform(ABC_PLS_trans_sim_file_name)
+    [ABC_estimate_file_name, outputPrefix] = create_ABC_estimate_config(path_sim_results, param_num)
+    run_ABCtoolbox(ABC_estimate_file_name)
 
-    ABC_estimate_file_name = create_ABC_estimate_config(path_sim_results, param_num)
+    param_dict = create_param_dict(param_file, outputPrefix)
+    create_param_file(param_dict, chrom)
 
 if __name__ == '__main__':
     main()
