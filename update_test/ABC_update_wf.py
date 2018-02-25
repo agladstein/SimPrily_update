@@ -133,7 +133,33 @@ def get_param_stats_num(param_file, observed_df):
     return [param_num, stats_num]
 
 
+def create_observed_stats_file(observed_df, param_num, path_sim_results):
+    """
+    
+    :param observed_df: dataframe of parameter and summary stats from one simulation.
+    :param param_num: number of parameters
+    :param path_sim_results: full or relative path to directory with simulation results files.
+    :return: observed_stats_df: dataframe of one randomly chosen simulation results file without the parameters.
+    """
+
+    observed_stats_df = observed_df.iloc[:, param_num:]
+
+    observed_stats_file_name = '{}/results_observed.txt'.format(path_sim_results)
+    observed_param_stats_file_name = '{}/results_param_observed.txt'.format(path_sim_results)
+    observed_stats_df.to_csv(observed_stats_file_name, sep='\t', index=False)
+    observed_df.to_csv(observed_param_stats_file_name, sep='\t', index=False)
+
+    return
+
+
 def run_PLS(path_sim_results, param_num, stats_num):
+    """
+    Run R script to find PLS components.
+    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param param_num: number of parameters
+    :param stats_num: number of summary statistics
+    :return: 
+    """
 
     directory = '{}/'.format(path_sim_results)
     filename = 'results_combined.txt'
@@ -144,25 +170,47 @@ def run_PLS(path_sim_results, param_num, stats_num):
     numComp = end_stats - start_stats
 
     print('Rscript', 'findPLS.r', directory, filename, start_stats, end_stats, start_param, end_param, numComp)
-
     return
 
 
-def create_real_stats_file(observed_df, param_num, path_sim_results):
+def create_ABC_PLS_trans_config(path_sim_results, data_type):
     """
-    
-    :param observed_df: dataframe of parameter and summary stats from one simulation.
-    :param param_num: number of parameters
+    Create ABCtoolbox config file to transform stats to PLS components.
     :param path_sim_results: full or relative path to directory with simulation results files.
-    :return: real_stats_df: dataframe of one randomly chosen simulation results file without the parameters.
+    :param data_type: 'sim' or 'observed'
+    :return: 
     """
 
-    real_stats_df = observed_df.iloc[:, param_num:]
+    if data_type == 'sim':
+        base = 'results_combined'
+        file_name = '{}/test_ABC_transform_sim.txt'.format(path_sim_results)
+    elif data_type == 'observed':
+        base = 'results_observed'
+        file_name = '{}/test_ABC_transform_observed.txt'.format(path_sim_results)
+    else:
+        print('type must be sim or observed')
+        exit()
 
-    real_stats_file_name = '{}/results_real.txt'.format(path_sim_results)
-    real_param_stats_file_name = '{}/results_param_real.txt'.format(path_sim_results)
-    real_stats_df.to_csv(real_stats_file_name, sep='\t', index=False)
-    observed_df.to_csv(real_param_stats_file_name, sep='\t', index=False)
+    input = '{}/{}.txt'.format(path_sim_results, base)
+    output = '{}/{}_transformed.txt'.format(path_sim_results, base)
+    linearComb = '{}/Routput_{}.txt'.format(path_sim_results, base)
+    logfile = '{}/{}_transformed.log'.format(path_sim_results, base)
+
+    try:
+        os.remove(file_name)
+    except OSError:
+        pass
+    config_file = open(file_name, 'a')
+
+    config_file.write('task transform\n')
+    config_file.write('input {}\n'.format(input))
+    config_file.write('output {}\n'.format(output))
+    config_file.write('linearComb {}\n'.format(linearComb))
+    config_file.write('boxcox 1\n')
+    config_file.write('logFile {}\n'.format(logfile))
+    config_file.write('verbose\n')
+
+    config_file.close()
 
     return
 
@@ -180,9 +228,13 @@ def main():
 
     [param_num, stats_num] = get_param_stats_num(param_file, observed_df)
 
+    create_observed_stats_file(observed_df, param_num, path_sim_results)
+
     run_PLS(path_sim_results, param_num, stats_num)
 
-    create_real_stats_file(observed_df, param_num, path_sim_results)
+    create_ABC_PLS_trans_config(path_sim_results, 'observed')
+    create_ABC_PLS_trans_config(path_sim_results, 'sim')
+
 
 if __name__ == '__main__':
     main()
