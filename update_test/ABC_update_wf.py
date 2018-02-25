@@ -165,7 +165,13 @@ def run_PLS(path_sim_results, param_num, stats_num):
     # numComp = end_stats - start_stats
     numComp = 10
 
-    print('Rscript', 'findPLS.r', directory, filename, start_stats, end_stats, start_param, end_param, numComp)
+    if os.path.isfile('findPLS.r'):
+        command = 'Rscript findPLS.r {} {} {} {} {} {} {}'.format(directory, filename, start_stats, end_stats, start_param, end_param, numComp)
+        print(command)
+        os.system(command)
+    else:
+        print('findPLS.r does not exist')
+        exit()
     return
 
 
@@ -257,13 +263,14 @@ def run_ABCtoolbox(file_name):
     :return: 
     """
 
+    ABCtoolbox = './bin/ABCtoolbox'.format()
     if os.path.isfile(file_name):
-        if os.path.isfile('./bin/ABCtoolbox'):
-            command = './bin/ABCtoolbox {}'.format(file_name)
+        if os.path.isfile(ABCtoolbox):
+            command = '{} {}'.format(ABCtoolbox, file_name)
             print(command)
             os.system(command)
         else:
-            print('./bin/ABCtoolbox does not exist')
+            print('{} does not exist'.format(ABCtoolbox))
             exit()
     else:
         print('{} does not exist'.format(file_name))
