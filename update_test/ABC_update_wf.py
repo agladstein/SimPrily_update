@@ -283,9 +283,8 @@ def define_ABCtoolbox():
     :return: ABCtoolbox: path of ABCtoolbox
     """
 
-    host = sh.hostname()
-    if 'login' in host:
-        ABCtoolbox = '~/bin/ABCtoolbox_beta2'
+    if os.path.isfile('/home/u15/agladstein/bin/ABCtoolbox_beta2'):
+	ABCtoolbox = '/home/u15/agladstein/bin/ABCtoolbox_beta2'
     else:
         ABCtoolbox = './bin/ABCtoolbox'
     return ABCtoolbox
