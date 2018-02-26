@@ -4,6 +4,7 @@ import linecache
 from random import randint
 import pandas as pd
 from collections import OrderedDict
+import sh
 
 
 def list_files(d):
@@ -70,6 +71,12 @@ def col_num_equal(header, second_line):
 
 
 def results_not_combined(path_sim_results, files_sim_results):
+    """
+    Return false if the combined results file hasn't already been created or it doesn't have all of the simulations.
+    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param files_sim_results: list of full paths of simulation results files.
+    :return: True or False
+    """
 
     file_sim_combined_name = '{}/results_combined.txt'.format(path_sim_results)
     if os.path.isfile(file_sim_combined_name):
@@ -209,7 +216,7 @@ def create_ABC_PLS_trans_config(path_run_ABC, data_type):
 
     input = '{}/{}.txt'.format(path_run_ABC, base)
     output = '{}/{}_transformed.txt'.format(path_run_ABC, base)
-    linearComb = '{}/Routput_{}.txt'.format(path_run_ABC, base)
+    linearComb = '{}/Routput_results_combined.txt'.format(path_run_ABC, base)
     logfile = '{}/{}_transformed.log'.format(path_run_ABC, base)
 
     try:
@@ -270,17 +277,27 @@ def create_ABC_estimate_config(path_run_ABC, param_num):
     return [file_name, outputPrefix]
 
 
-def run_ABCtoolbox(file_name):
+def define_ABCtoolbox():
+    """
+    Define ABCtoolbox based on host
+    :return: ABCtoolbox: path of ABCtoolbox
+    """
+
+    host = sh.hostname()
+    if 'login' in host:
+        ABCtoolbox = '~/bin/ABCtoolbox_beta2'
+    else:
+        ABCtoolbox = './bin/ABCtoolbox'
+    return ABCtoolbox
+
+
+def run_ABCtoolbox(file_name, ABCtoolbox):
     """
     Run ABCtoolbox.
     :param file_name: ABCtoolbox config file
     :return: 
     """
 
-    ABCtoolbox = '~/bin/ABCtoolbox_beta2'
-    print(ABCtoolbox)
-    command = 'ls {}'.format(ABCtoolbox)
-    os.system(command)
     if os.path.isfile(file_name):
         command = '{} {}'.format(ABCtoolbox, file_name)
         print(command)
@@ -357,14 +374,16 @@ def main():
 
     run_PLS(path_run_ABC, param_num, stats_num)
 
+    ABCtoolbox = define_ABCtoolbox()
+
     ABC_PLS_trans_observed_file_name = create_ABC_PLS_trans_config(path_run_ABC, 'observed')
-    run_ABCtoolbox(ABC_PLS_trans_observed_file_name)
+    run_ABCtoolbox(ABC_PLS_trans_observed_file_name, ABCtoolbox)
 
     ABC_PLS_trans_sim_file_name = create_ABC_PLS_trans_config(path_run_ABC, 'sim')
-    run_ABCtoolbox(ABC_PLS_trans_sim_file_name)
+    run_ABCtoolbox(ABC_PLS_trans_sim_file_name, ABCtoolbox)
 
     [ABC_estimate_file_name, outputPrefix] = create_ABC_estimate_config(path_run_ABC, param_num)
-    run_ABCtoolbox(ABC_estimate_file_name)
+    run_ABCtoolbox(ABC_estimate_file_name, ABCtoolbox)
 
     param_dict = create_param_dict(param_file, outputPrefix)
     create_param_file(param_dict, chrom)
