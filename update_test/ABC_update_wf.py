@@ -69,21 +69,35 @@ def col_num_equal(header, second_line):
         return False
 
 
-def combine_sim_results(path_sim_results, files_sim_results):
+def results_not_combined(path_sim_results, files_sim_results):
+
+    file_sim_combined_name = '{}/results_combined.txt'.format(path_sim_results)
+    if os.path.isfile(file_sim_combined_name):
+        sim_num = len(files_sim_results)
+        line_num = sum(1 for line in open(file_sim_combined_name))
+        if line_num >= sim_num:
+            return False
+        else:
+            return True
+    else:
+        return True
+
+
+def combine_sim_results(path_run_ABC, files_sim_results):
     """
     Combine the simulation results into one file.
     This function checks if headers match, and if the second line has the same number of columns as the header.
-    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory with simulation results files.
     :param files_sim_results: list of full paths of simulation results files.
     :return: Writes a new file called 'results_combined.txt' in the provided path.
     """
 
-    if os.path.exists(path_sim_results):
+    if os.path.exists(path_run_ABC):
         print('Combining simulation results into one file')
 
         header = get_results_header(files_sim_results[0])
 
-        file_sim_combined_name = '{}/results_combined.txt'.format(path_sim_results)
+        file_sim_combined_name = '{}/results_combined.txt'.format(path_run_ABC)
         file_sim_combined = open(file_sim_combined_name, 'w')
         file_sim_combined.write(header)
         file_sim_combined.close()
@@ -95,7 +109,7 @@ def combine_sim_results(path_sim_results, files_sim_results):
                 file_sim_combined.write(second_line)
         file_sim_combined.close()
     else:
-        print('{} does not exist'.format(path_sim_results))
+        print('{} does not exist'.format(path_run_ABC))
         exit()
 
     return
@@ -128,35 +142,35 @@ def get_param_stats_num(param_file, observed_df):
     return [param_num, stats_num]
 
 
-def create_observed_stats_file(observed_df, param_num, path_sim_results):
+def create_observed_stats_file(observed_df, param_num, path_run_ABC):
     """
     Create file of 'observed' stats from dataframe from one simulation. 
     :param observed_df: dataframe of parameter and summary stats from one simulation.
     :param param_num: number of parameters
-    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory with simulation results files.
     :return: observed_stats_df: dataframe of one randomly chosen simulation results file without the parameters.
     """
 
     observed_stats_df = observed_df.iloc[:, param_num:]
 
-    observed_stats_file_name = '{}/results_observed.txt'.format(path_sim_results)
-    observed_param_stats_file_name = '{}/results_param_observed.txt'.format(path_sim_results)
+    observed_stats_file_name = '{}/results_observed.txt'.format(path_run_ABC)
+    observed_param_stats_file_name = '{}/results_param_observed.txt'.format(path_run_ABC)
     observed_stats_df.to_csv(observed_stats_file_name, sep='\t', index=False)
     observed_df.to_csv(observed_param_stats_file_name, sep='\t', index=False)
 
     return
 
 
-def run_PLS(path_sim_results, param_num, stats_num):
+def run_PLS(path_run_ABC, param_num, stats_num):
     """
     Run R script to find PLS components.
-    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory with simulation results files.
     :param param_num: number of parameters
     :param stats_num: number of summary statistics
     :return: 
     """
 
-    directory = '{}/'.format(path_sim_results)
+    directory = '{}/'.format(path_run_ABC)
     filename = 'results_combined.txt'
     start_stats = param_num + 1
     end_stats = param_num + stats_num
@@ -175,28 +189,28 @@ def run_PLS(path_sim_results, param_num, stats_num):
     return
 
 
-def create_ABC_PLS_trans_config(path_sim_results, data_type):
+def create_ABC_PLS_trans_config(path_run_ABC, data_type):
     """
     Create ABCtoolbox config file to transform stats to PLS components.
-    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory with simulation results files.
     :param data_type: 'sim' or 'observed'
     :return: file_name: the name of the ABCtoolbox config file for PLS tranformation
     """
 
     if data_type == 'sim':
         base = 'results_combined'
-        file_name = '{}/test_ABC_transform_sim.txt'.format(path_sim_results)
+        file_name = '{}/test_ABC_transform_sim.txt'.format(path_run_ABC)
     elif data_type == 'observed':
         base = 'results_observed'
-        file_name = '{}/test_ABC_transform_observed.txt'.format(path_sim_results)
+        file_name = '{}/test_ABC_transform_observed.txt'.format(path_run_ABC)
     else:
         print('type must be sim or observed')
         exit()
 
-    input = '{}/{}.txt'.format(path_sim_results, base)
-    output = '{}/{}_transformed.txt'.format(path_sim_results, base)
-    linearComb = '{}/Routput_{}.txt'.format(path_sim_results, base)
-    logfile = '{}/{}_transformed.log'.format(path_sim_results, base)
+    input = '{}/{}.txt'.format(path_run_ABC, base)
+    output = '{}/{}_transformed.txt'.format(path_run_ABC, base)
+    linearComb = '{}/Routput_{}.txt'.format(path_run_ABC, base)
+    logfile = '{}/{}_transformed.log'.format(path_run_ABC, base)
 
     try:
         os.remove(file_name)
@@ -216,21 +230,21 @@ def create_ABC_PLS_trans_config(path_sim_results, data_type):
     return file_name
 
 
-def create_ABC_estimate_config(path_sim_results, param_num):
+def create_ABC_estimate_config(path_run_ABC, param_num):
     """
     Create ABCtoolbox config file for estimation.
-    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory with simulation results files.
     :param param_num: number of parameters
     :return: 
     """
 
-    file_name = '{}/test_ABC_estimate.txt'.format(path_sim_results)
+    file_name = '{}/test_ABC_estimate.txt'.format(path_run_ABC)
 
-    simName = '{}/results_combined_transformed.txt'.format(path_sim_results)
-    obsName = '{}/results_observed_transformed.txt'.format(path_sim_results)
+    simName = '{}/results_combined_transformed.txt'.format(path_run_ABC)
+    obsName = '{}/results_observed_transformed.txt'.format(path_run_ABC)
     params = '1-{}'.format(param_num)
-    outputPrefix = '{}/ABC_update_estimate_10pls_100ret_'.format(path_sim_results)
-    logFile = '{}/ABC_update_estimate_10pls_100ret.log'.format(path_sim_results)
+    outputPrefix = '{}/ABC_update_estimate_10pls_100ret_'.format(path_run_ABC)
+    logFile = '{}/ABC_update_estimate_10pls_100ret.log'.format(path_run_ABC)
 
     try:
         os.remove(file_name)
@@ -268,13 +282,9 @@ def run_ABCtoolbox(file_name):
     command = 'ls {}'.format(ABCtoolbox)
     os.system(command)
     if os.path.isfile(file_name):
-    #    if os.path.isfile(ABCtoolbox):
-         command = '{} {}'.format(ABCtoolbox, file_name)
-         print(command)
-         os.system(command)
-    #    else:
-    #        print('{} does not exist'.format(ABCtoolbox))
-    #        exit()
+        command = '{} {}'.format(ABCtoolbox, file_name)
+        print(command)
+        os.system(command)
     else:
         print('{} does not exist'.format(file_name))
         exit()
@@ -322,29 +332,38 @@ def create_param_file(param_dict, chrom):
 
 def main():
 
-    path_sim_results = argv[1]
+    path_sim = argv[1]
     param_file = argv[2]
     chrom = argv[3]
+    path_sim_results = '{}/results'.format(path_sim)
+    path_run_ABC = '{}/ABC'.format(path_sim)
+
+    try:
+        os.makedirs(path_run_ABC)
+    except OSError:
+        if not os.path.isdir(path_run_ABC):
+            raise
 
     files_sim_results = list_files(path_sim_results)
 
-    combine_sim_results(path_sim_results, files_sim_results)
+    if results_not_combined(path_sim_results, files_sim_results):
+        combine_sim_results(path_run_ABC, files_sim_results)
 
     observed_df = create_observed_df(files_sim_results)
 
     [param_num, stats_num] = get_param_stats_num(param_file, observed_df)
 
-    create_observed_stats_file(observed_df, param_num, path_sim_results)
+    create_observed_stats_file(observed_df, param_num, path_run_ABC)
 
-    run_PLS(path_sim_results, param_num, stats_num)
+    run_PLS(path_run_ABC, param_num, stats_num)
 
-    ABC_PLS_trans_observed_file_name = create_ABC_PLS_trans_config(path_sim_results, 'observed')
+    ABC_PLS_trans_observed_file_name = create_ABC_PLS_trans_config(path_run_ABC, 'observed')
     run_ABCtoolbox(ABC_PLS_trans_observed_file_name)
 
-    ABC_PLS_trans_sim_file_name = create_ABC_PLS_trans_config(path_sim_results, 'sim')
+    ABC_PLS_trans_sim_file_name = create_ABC_PLS_trans_config(path_run_ABC, 'sim')
     run_ABCtoolbox(ABC_PLS_trans_sim_file_name)
 
-    [ABC_estimate_file_name, outputPrefix] = create_ABC_estimate_config(path_sim_results, param_num)
+    [ABC_estimate_file_name, outputPrefix] = create_ABC_estimate_config(path_run_ABC, param_num)
     run_ABCtoolbox(ABC_estimate_file_name)
 
     param_dict = create_param_dict(param_file, outputPrefix)
