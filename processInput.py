@@ -18,16 +18,16 @@ def create_hist_df(histogram_name):
 
 def create_param_hist(histogram_df, param):
     bins = histogram_df[param]
-    density_head = str(param) + '.density'
-    density = histogram_df[density_head]
+    density_index = histogram_df.columns.get_loc(param) + 1
+    density = histogram_df.iloc[:,density_index]
     probability = density / sum(density)
     return [bins, probability]
 
 
 def sample_from_hist(histogram_df, param):
     bins = histogram_df[param]
-    density_head = str(param) + '.density'
-    density = histogram_df[density_head]
+    density_index = histogram_df.columns.get_loc(param) + 1
+    density = histogram_df.iloc[:,density_index]
     probability = density / sum(density)
     value = np.random.choice(bins, p=probability)
     return value
