@@ -51,7 +51,7 @@ for(i in 1:length(stats)){
 }
 
 #perform pls
-install.packages("pls")
+install.packages("pls", repos='http://cran.us.r-project.org')
 library("pls");
 myPlsr<-plsr(as.matrix(params) ~ as.matrix(stats), scale=F, ncomp=numComp);
 

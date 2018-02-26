@@ -21,5 +21,5 @@ RUN_DIR=/home/u15/agladstein/SimPrily_update
 
 cd $RUN_DIR
 
-echo "~/env/macss_env_ocelote_2.7.11/bin/python ${BUCKET_OUT_PATH}/results update_test/input_files/param_chr1.txt 2"
-~/env/macss_env_ocelote_2.7.11/bin/python ${BUCKET_OUT_PATH}/results update_test/input_files/param_chr1.txt 2
+echo "~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH}/results update_test/input_files/param_chr1.txt 2"
+~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH}/results update_test/input_files/param_chr1.txt 2

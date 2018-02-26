@@ -263,15 +263,18 @@ def run_ABCtoolbox(file_name):
     :return: 
     """
 
-    ABCtoolbox = './bin/ABCtoolbox'.format()
+    ABCtoolbox = '~/bin/ABCtoolbox_beta2'
+    print(ABCtoolbox)
+    command = 'ls {}'.format(ABCtoolbox)
+    os.system(command)
     if os.path.isfile(file_name):
-        if os.path.isfile(ABCtoolbox):
-            command = '{} {}'.format(ABCtoolbox, file_name)
-            print(command)
-            os.system(command)
-        else:
-            print('{} does not exist'.format(ABCtoolbox))
-            exit()
+    #    if os.path.isfile(ABCtoolbox):
+         command = '{} {}'.format(ABCtoolbox, file_name)
+         print(command)
+         os.system(command)
+    #    else:
+    #        print('{} does not exist'.format(ABCtoolbox))
+    #        exit()
     else:
         print('{} does not exist'.format(file_name))
         exit()
