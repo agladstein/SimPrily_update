@@ -335,7 +335,7 @@ def create_param_file(param_dict, chrom):
     """
 
     input_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])))
-    new_param_file_name = '{}/param_chr{}'.format(input_dir, chrom)
+    new_param_file_name = '{}/param_chr{}.txt'.format(input_dir, chrom)
     try:
         os.remove(new_param_file_name)
     except OSError:
@@ -343,7 +343,7 @@ def create_param_file(param_dict, chrom):
     new_param_file = open(new_param_file_name, 'a')
 
     for line in param_dict:
-        new_param_file.write('{} = {}'.format(line, param_dict[line]))
+        new_param_file.write('{} = {}\n'.format(line, param_dict[line]))
     new_param_file.close()
     return
 
