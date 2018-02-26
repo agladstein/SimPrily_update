@@ -98,12 +98,22 @@ The second line is the parameter values and summary statistics values.
 
 ## HPC Workflow
 
-Use `checkque.sh` to submit jobs to Ocelote.
+For chromosome 1 use `checkque.sh` to submit jobs to Ocelote.
 
 Arguments are `goal_number`, `max_que`, `chr`  
 
 ```bash
 /home/u15/agladstein/SimPrily_update/update_test/checkque.sh 10000 500 1
+```
+
+Then, run ABC with `ABC_update_wf.py` with the appropriate chromosome:
+```bash
+qsub update_test/PBS/run_ABC_chr1.pbs
+```
+
+Then, run the simulations with the appropriate chromosome:
+```bash
+qsub update_test/PBS/run_sims_update_chr2.pbs
 ```
 
 -------------------------

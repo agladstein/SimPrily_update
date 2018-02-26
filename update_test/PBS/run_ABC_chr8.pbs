@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -N ABC
+#PBS -N ABC8
 #PBS -W group_list=mfh
 #PBS -q standard
 #PBS -l cput=01:00:00
@@ -13,7 +13,7 @@ module load R
 
 cd $PBS_O_WORKDIR
 
-BUCKET_OUT_PATH=/rsgrps/mfh4/Ariella/SimPrily_update/chr1
+BUCKET_OUT_PATH=/rsgrps/mfh4/Ariella/SimPrily_update/chr8
 echo "BUCKET_OUT_PATH: ${BUCKET_OUT_PATH}"
 mkdir -p ${BUCKET_OUT_PATH}
 
@@ -21,5 +21,5 @@ RUN_DIR=/home/u15/agladstein/SimPrily_update
 
 cd $RUN_DIR
 
-echo "~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH} update_test/input_files/param_chr1.txt 2"
-~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH} update_test/input_files/param_chr1.txt 2
+echo "~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH} update_test/input_files/param_chr8.txt 9"
+~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH} update_test/input_files/param_chr8.txt 9
