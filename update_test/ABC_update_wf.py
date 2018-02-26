@@ -252,6 +252,7 @@ def create_ABC_estimate_config(path_run_ABC, param_num):
     params = '1-{}'.format(param_num)
     outputPrefix = '{}/ABC_update_estimate_10pls_100ret_'.format(path_run_ABC)
     logFile = '{}/ABC_update_estimate_10pls_100ret.log'.format(path_run_ABC)
+    num_sims = sum(1 for line in open(simName)) - 1
 
     try:
         os.remove(file_name)
@@ -264,6 +265,7 @@ def create_ABC_estimate_config(path_run_ABC, param_num):
     config_file.write('obsName {}\n'.format(obsName))
     config_file.write('params {}\n'.format(params))
     config_file.write('numRetained 100\n')
+    config_file.write('maxReadSims {}\n'.format(num_sims))
     config_file.write('diracPeakWidth 0.01\n')
     config_file.write('posteriorDensityPoints 100\n')
     config_file.write('jointPosteriors A,B\n')
@@ -284,7 +286,7 @@ def define_ABCtoolbox():
     """
 
     if os.path.isfile('/home/u15/agladstein/bin/ABCtoolbox_beta2'):
-	ABCtoolbox = '/home/u15/agladstein/bin/ABCtoolbox_beta2'
+        ABCtoolbox = '/home/u15/agladstein/bin/ABCtoolbox_beta2'
     else:
         ABCtoolbox = './bin/ABCtoolbox'
     return ABCtoolbox
