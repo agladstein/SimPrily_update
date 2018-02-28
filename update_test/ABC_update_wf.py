@@ -5,7 +5,8 @@ import linecache
 from random import randint
 import pandas as pd
 from collections import OrderedDict
-import simprily
+import sh
+
 
 def list_files(d):
     """
@@ -39,9 +40,10 @@ def get_results_header(file_name):
 
 def get_second_line(file_name, header):
     """
-    :param header: the header of one of the simulation results files in the directory.
-    This contains the names of the parameters and summary statistics.
+    Get the second line from the simulation results file if header matches.
     :param file_name: result file from one simulation
+    :param header: the header of one of the simulation results files in the directory. 
+    This contains the names of the parameters and summary statistics.
     :return: second_line: 2nd line of results file containing the parameter values and summary statistics 
     """
 
@@ -70,15 +72,15 @@ def col_num_equal(header, second_line):
         return False
 
 
-def results_not_combined(path_sim_results, files_sim_results):
+def results_not_combined(path_run_ABC, files_sim_results):
     """
     Return false if the combined results file hasn't already been created or it doesn't have all of the simulations.
-    :param path_sim_results: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory to run ABC in.
     :param files_sim_results: list of full paths of simulation results files.
     :return: True or False
     """
 
-    file_sim_combined_name = '{}/results_combined.txt'.format(path_sim_results)
+    file_sim_combined_name = '{}/results_combined.txt'.format(path_run_ABC)
     if os.path.isfile(file_sim_combined_name):
         sim_num = len(files_sim_results)
         line_num = sum(1 for line in open(file_sim_combined_name))
@@ -94,7 +96,7 @@ def combine_sim_results(path_run_ABC, files_sim_results):
     """
     Combine the simulation results into one file.
     This function checks if headers match, and if the second line has the same number of columns as the header.
-    :param path_run_ABC: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory to run ABC in.
     :param files_sim_results: list of full paths of simulation results files.
     :return: Writes a new file called 'results_combined.txt' in the provided path.
     """
@@ -154,7 +156,7 @@ def create_observed_stats_file(observed_df, param_num, path_run_ABC):
     Create file of 'observed' stats from dataframe from one simulation. 
     :param observed_df: dataframe of parameter and summary stats from one simulation.
     :param param_num: number of parameters
-    :param path_run_ABC: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory to run ABC in.
     :return: observed_stats_df: dataframe of one randomly chosen simulation results file without the parameters.
     """
 
@@ -171,7 +173,7 @@ def create_observed_stats_file(observed_df, param_num, path_run_ABC):
 def run_PLS(path_run_ABC, param_num, stats_num):
     """
     Run R script to find PLS components.
-    :param path_run_ABC: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory to run ABC in.
     :param param_num: number of parameters
     :param stats_num: number of summary statistics
     :return: 
@@ -199,7 +201,7 @@ def run_PLS(path_run_ABC, param_num, stats_num):
 def create_ABC_PLS_trans_config(path_run_ABC, data_type):
     """
     Create ABCtoolbox config file to transform stats to PLS components.
-    :param path_run_ABC: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory to run ABC in.
     :param data_type: 'sim' or 'observed'
     :return: file_name: the name of the ABCtoolbox config file for PLS tranformation
     """
@@ -240,7 +242,7 @@ def create_ABC_PLS_trans_config(path_run_ABC, data_type):
 def create_ABC_estimate_config(path_run_ABC, param_num):
     """
     Create ABCtoolbox config file for estimation.
-    :param path_run_ABC: full or relative path to directory with simulation results files.
+    :param path_run_ABC: full or relative path to directory to run ABC in.
     :param param_num: number of parameters
     :return: 
     """
@@ -252,7 +254,7 @@ def create_ABC_estimate_config(path_run_ABC, param_num):
     params = '1-{}'.format(param_num)
     outputPrefix = '{}/ABC_update_estimate_10pls_100ret_'.format(path_run_ABC)
     logFile = '{}/ABC_update_estimate_10pls_100ret.log'.format(path_run_ABC)
-    num_sims = sum(1 for line in open(simName)) - 1
+    num_sims = sum(1 for line in open('{}/results_combined.txt'.format(path_run_ABC))) - 1
 
     try:
         os.remove(file_name)
@@ -330,8 +332,8 @@ def create_param_observed_dict(param_file_name, observed_df):
     """
     Create a dictionary with the parameters and file with posterior density
     :param param_file_name: original parameter file
-    :param outputPrefix: prefix given in ABCtoolbox config file for estimation
-    :return: param_dict: ordered dict with the parameters and file with posterior density
+    :param observed_df: dataframe of parameter and summary stats from one simulation.
+    :return: param_observed_dict: ordered dict with the parameters and file with posterior density
     """
 
     param_file = open(param_file_name, "r")
@@ -346,16 +348,18 @@ def create_param_observed_dict(param_file_name, observed_df):
 
 def create_param_file(param_dict, chrom, sim_type, obs):
     """
-    Create new parameter file for simulations.
+    Create new parameter file for simulations.    
     :param param_dict: ordered dict with the parameters and file with posterior density
-    :param chrom: the chromosome number of next chromosome to run
+    :param chrom: the chromosome number of the current chromosome
+    :param sim_type: 'update' or 'observed'
+    :param obs: number of observed iteration
     :return: 
     """
 
     input_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])))
 
     if sim_type == 'update':
-        new_param_file_name = '{}/param_chr{}.txt'.format(input_dir, chrom)
+        new_param_file_name = '{}/param_chr{}.txt'.format(input_dir, chrom + 1)
     elif sim_type == 'observed':
         new_param_file_name = '{}/param_obs{}.txt'.format(input_dir, obs)
 
@@ -372,19 +376,51 @@ def create_param_file(param_dict, chrom, sim_type, obs):
 
 
 def sim_observed(path_run_ABC, obs, chrom):
+    """
+    Run simulation to create observed data based on observed parameter values from chr1.
+    :param path_run_ABC: full or relative path to directory to run ABC in.
+    :param obs: number of observed iteration
+    :param chrom: the chromosome number of the current chromosome
+    :return: 
+    """
+
     print('simulate based on observed parameter values from first chromosome')
     input_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])))
-    script = '/vagrant/simprily.py'
+    simprily_dir = os.path.dirname(os.path.dirname(os.path.realpath(argv[0])).rstrip('/'))
+    script = '{}/simprily.py'.format(simprily_dir)
     p = '{}/param_obs{}.txt'.format(input_dir, obs)
     m = '{}/model_chr{}.csv'.format(input_dir, chrom)
     g = 'genetic_map_b37/genetic_map_GRCh37_chr{}.txt.macshs'.format(chrom)
     i = 'observed'
     o = path_run_ABC
-    args = [script, '-p', p, '-m', m, '-g', g, '-i', i, '-o', o]
-    simprily.main(args)
-    # python = executable
-    # command = '{} {} -p {} -m {} -g {} -i {} -o {}'.format(python, script, p, m, g, i, o)
-    # os.system(command)
+    python = executable
+    command = '{} {} -p {} -m {} -g {} -i {} -o {}'.format(python, script, p, m, g, i, o)
+    os.system(command)
+    return
+
+
+def create_observed_df(path_run_ABC):
+    """
+    Create observed dataframe from simulated data from observed parameters
+    :param path_run_ABC: full or relative path to directory to run ABC in.
+    :return: observed_df: dataframe of parameter and summary stats from one simulation.
+    """
+
+    observed_file_name = '{}/results/results_observed.txt'.format(path_run_ABC)
+    observed_df = pd.read_csv(observed_file_name, sep='\t')
+    return observed_df
+
+
+def clean_sim_observed_out(path_run_ABC):
+    """
+    Clean up directory where simulation of observed data happened
+    :param path_run_ABC: full or relative path to directory to run ABC in.
+    :return: 
+    """
+
+    sh.rm('-r', '{}/germline_out'.format(path_run_ABC))
+    sh.rm('-r', '{}/results'.format(path_run_ABC))
+    sh.rm('-r', '{}/sim_data'.format(path_run_ABC))
     return
 
 
@@ -394,8 +430,8 @@ def main():
     param_file_name = argv[2]
     chrom = int(argv[3])
     obs = int(argv[4])
-    path_sim_results = '{}/results'.format(path_sim)
-    path_run_ABC = '{}/ABC/obs{}'.format(path_sim, obs)
+    path_sim_results = '{}/obs{}/chr{}/results'.format(path_sim, obs, chrom)
+    path_run_ABC = '{}/obs{}/chr{}/ABC'.format(path_sim, obs, chrom)
 
     try:
         os.makedirs(path_run_ABC)
@@ -405,17 +441,19 @@ def main():
 
     files_sim_results = list_files(path_sim_results)
 
-    if results_not_combined(path_sim_results, files_sim_results):
+    if results_not_combined(path_run_ABC, files_sim_results):
         combine_sim_results(path_run_ABC, files_sim_results)
 
-    if chrom <= 2:
+    if chrom == 1:
         observed_df = create_random_observed_df(files_sim_results)
-        param_observed_dict = create_param_observed_dict(param_file_name, observed_df)
-        create_param_file(param_observed_dict, chrom, 'observed', obs)
     else:
         sim_observed(path_run_ABC, obs, chrom)
+        observed_df = create_observed_df(path_run_ABC)
+        clean_sim_observed_out(path_run_ABC)
 
-    exit()
+    param_observed_dict = create_param_observed_dict(param_file_name, observed_df)
+    create_param_file(param_observed_dict, chrom, 'observed', obs)
+
     [param_num, stats_num] = get_param_stats_num(param_file_name, observed_df)
 
     create_observed_stats_file(observed_df, param_num, path_run_ABC)
