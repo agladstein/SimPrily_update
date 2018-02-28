@@ -1,11 +1,11 @@
 from sys import argv
+from sys import executable
 import os.path
 import linecache
 from random import randint
 import pandas as pd
 from collections import OrderedDict
-import sh
-
+import simprily
 
 def list_files(d):
     """
@@ -122,7 +122,7 @@ def combine_sim_results(path_run_ABC, files_sim_results):
     return
 
 
-def create_observed_df(files_sim_results):
+def create_random_observed_df(files_sim_results):
     """
     Randomly pick simulation to use as observed data.
     :param files_sim_results: list of full paths of simulation results files.
@@ -326,7 +326,25 @@ def create_param_dict(param_file_name, outputPrefix):
     return param_dict
 
 
-def create_param_file(param_dict, chrom):
+def create_param_observed_dict(param_file_name, observed_df):
+    """
+    Create a dictionary with the parameters and file with posterior density
+    :param param_file_name: original parameter file
+    :param outputPrefix: prefix given in ABCtoolbox config file for estimation
+    :return: param_dict: ordered dict with the parameters and file with posterior density
+    """
+
+    param_file = open(param_file_name, "r")
+    param_observed_dict = OrderedDict()
+    for line in param_file:
+        if "=" in line:
+            param = line.split("=")[0].strip()
+            param_observed_dict[param] = observed_df[param][0]
+    param_file.close()
+    return param_observed_dict
+
+
+def create_param_file(param_dict, chrom, sim_type, obs):
     """
     Create new parameter file for simulations.
     :param param_dict: ordered dict with the parameters and file with posterior density
@@ -335,7 +353,12 @@ def create_param_file(param_dict, chrom):
     """
 
     input_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])))
-    new_param_file_name = '{}/param_chr{}.txt'.format(input_dir, chrom)
+
+    if sim_type == 'update':
+        new_param_file_name = '{}/param_chr{}.txt'.format(input_dir, chrom)
+    elif sim_type == 'observed':
+        new_param_file_name = '{}/param_obs{}.txt'.format(input_dir, obs)
+
     try:
         os.remove(new_param_file_name)
     except OSError:
@@ -348,13 +371,31 @@ def create_param_file(param_dict, chrom):
     return
 
 
+def sim_observed(path_run_ABC, obs, chrom):
+    print('simulate based on observed parameter values from first chromosome')
+    input_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])))
+    script = '/vagrant/simprily.py'
+    p = '{}/param_obs{}.txt'.format(input_dir, obs)
+    m = '{}/model_chr{}.csv'.format(input_dir, chrom)
+    g = 'genetic_map_b37/genetic_map_GRCh37_chr{}.txt.macshs'.format(chrom)
+    i = 'observed'
+    o = path_run_ABC
+    args = [script, '-p', p, '-m', m, '-g', g, '-i', i, '-o', o]
+    simprily.main(args)
+    # python = executable
+    # command = '{} {} -p {} -m {} -g {} -i {} -o {}'.format(python, script, p, m, g, i, o)
+    # os.system(command)
+    return
+
+
 def main():
 
     path_sim = argv[1]
-    param_file = argv[2]
-    chrom = argv[3]
+    param_file_name = argv[2]
+    chrom = int(argv[3])
+    obs = int(argv[4])
     path_sim_results = '{}/results'.format(path_sim)
-    path_run_ABC = '{}/ABC'.format(path_sim)
+    path_run_ABC = '{}/ABC/obs{}'.format(path_sim, obs)
 
     try:
         os.makedirs(path_run_ABC)
@@ -367,9 +408,15 @@ def main():
     if results_not_combined(path_sim_results, files_sim_results):
         combine_sim_results(path_run_ABC, files_sim_results)
 
-    observed_df = create_observed_df(files_sim_results)
+    if chrom <= 2:
+        observed_df = create_random_observed_df(files_sim_results)
+        param_observed_dict = create_param_observed_dict(param_file_name, observed_df)
+        create_param_file(param_observed_dict, chrom, 'observed', obs)
+    else:
+        sim_observed(path_run_ABC, obs, chrom)
 
-    [param_num, stats_num] = get_param_stats_num(param_file, observed_df)
+    exit()
+    [param_num, stats_num] = get_param_stats_num(param_file_name, observed_df)
 
     create_observed_stats_file(observed_df, param_num, path_run_ABC)
 
@@ -386,8 +433,8 @@ def main():
     [ABC_estimate_file_name, outputPrefix] = create_ABC_estimate_config(path_run_ABC, param_num)
     run_ABCtoolbox(ABC_estimate_file_name, ABCtoolbox)
 
-    param_dict = create_param_dict(param_file, outputPrefix)
-    create_param_file(param_dict, chrom)
+    param_dict = create_param_dict(param_file_name, outputPrefix)
+    create_param_file(param_observed_dict, chrom, 'update', obs)
 
 if __name__ == '__main__':
     main()
