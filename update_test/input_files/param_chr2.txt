@@ -1,7 +1,7 @@
-A = 90060.5750748
-B = 542823.396197
-C = 2644819.44409
-AB_t = 3127.94500832
-AC_t = 4012.98652166
-AN_t = 1860.32909731
-AN = 9075.0070025
+A = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
+B = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
+C = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
+AB_t = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
+AC_t = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
+AN_t = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
+AN = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt

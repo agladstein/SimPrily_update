@@ -472,7 +472,7 @@ def main():
     run_ABCtoolbox(ABC_estimate_file_name, ABCtoolbox)
 
     param_dict = create_param_dict(param_file_name, outputPrefix)
-    create_param_file(param_observed_dict, chrom, 'update', obs)
+    create_param_file(param_dict, chrom, 'update', obs)
 
 if __name__ == '__main__':
     main()
