@@ -386,13 +386,14 @@ def sim_observed(path_run_ABC, obs, chrom):
     """
 
     print('simulate based on observed parameter values from first chromosome')
-    input_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])))
+    model_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])), obs)
+    param_dir = '{}/input_files/obs{}'.format(os.path.dirname(os.path.realpath(argv[0])), obs)
     simprily_dir = os.path.dirname(os.path.dirname(os.path.realpath(argv[0])).rstrip('/'))
     script = '{}/simprily.py'.format(simprily_dir)
-    p = '{}/param_obs{}.txt'.format(input_dir, obs)
-    m = '{}/model_chr{}.csv'.format(input_dir, chrom)
+    p = '{}/param_obs{}.txt'.format(param_dir, obs)
+    m = '{}/model_chr{}.csv'.format(model_dir, chrom)
     g = 'genetic_map_b37/genetic_map_GRCh37_chr{}.txt.macshs'.format(chrom)
-    i = 'observed'
+    i = 'param_observed'
     o = path_run_ABC
     python = executable
     command = '{} {} -p {} -m {} -g {} -i {} -o {}'.format(python, script, p, m, g, i, o)
@@ -407,7 +408,7 @@ def create_observed_df(path_run_ABC):
     :return: observed_df: dataframe of parameter and summary stats from one simulation.
     """
 
-    observed_file_name = '{}/results/results_observed.txt'.format(path_run_ABC)
+    observed_file_name = '{}/results_param_observed.txt'.format(path_run_ABC)
     observed_df = pd.read_csv(observed_file_name, sep='\t')
     return observed_df
 
@@ -418,7 +419,7 @@ def clean_sim_observed_out(path_run_ABC):
     :param path_run_ABC: full or relative path to directory to run ABC in.
     :return: 
     """
-
+    sh.mv('{}/results/results_param_observed.txt'.format(path_run_ABC), path_run_ABC)
     sh.rm('-r', '{}/germline_out'.format(path_run_ABC))
     sh.rm('-r', '{}/results'.format(path_run_ABC))
     sh.rm('-r', '{}/sim_data'.format(path_run_ABC))
@@ -449,8 +450,8 @@ def main():
         observed_df = create_random_observed_df(files_sim_results)
     else:
         sim_observed(path_run_ABC, obs, chrom)
-        observed_df = create_observed_df(path_run_ABC)
         clean_sim_observed_out(path_run_ABC)
+        observed_df = create_observed_df(path_run_ABC)
 
     param_observed_dict = create_param_observed_dict(param_file_name, observed_df)
     create_param_file(param_observed_dict, chrom, 'observed', obs)
