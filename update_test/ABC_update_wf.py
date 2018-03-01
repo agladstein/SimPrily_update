@@ -131,7 +131,7 @@ def create_random_observed_df(files_sim_results):
     :return: observed_df: dataframe of parameter and summary stats from one simulation.
     """
 
-    x = randint(0, len(files_sim_results))
+    x = randint(0, len(files_sim_results)-1)
     observed_file_name = files_sim_results[x]
     observed_df = pd.read_csv(observed_file_name, sep='\t')
     return observed_df
