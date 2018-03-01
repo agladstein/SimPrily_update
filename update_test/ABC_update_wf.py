@@ -356,7 +356,8 @@ def create_param_file(param_dict, chrom, sim_type, obs):
     :return: 
     """
 
-    input_dir = '{}/input_files'.format(os.path.dirname(os.path.realpath(argv[0])))
+    input_dir = '{}/input_files/obs{}'.format(os.path.dirname(os.path.realpath(argv[0])), obs)
+    sh.mkdir('-p', input_dir)
 
     if sim_type == 'update':
         new_param_file_name = '{}/param_chr{}.txt'.format(input_dir, chrom + 1)

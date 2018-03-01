@@ -1,7 +1,0 @@
-A = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
-B = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
-C = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
-AB_t = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
-AC_t = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
-AN_t = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
-AN = /vagrant/obs1/chr1/ABC/ABC_update_estimate_10pls_100ret_model0_MarginalPosteriorDensities_Obs0.txt
