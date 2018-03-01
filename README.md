@@ -96,6 +96,29 @@ The second line is the parameter values and summary statistics values.
 
 -------------------------
 
+## ABC_update_wf.py
+
+This script creates all the necessary files for running ABC on simulations, and runs ABC.
+1. Combines the simulated results into one file in `obs{}/chr{}/ABC/results_combined.txt` (unless the file already exists).
+2. For chr1 randomly picks one of the simulations to use as observed data,
+and for all other chromosomes uses the parameter values of the observed data from chr1 to simulate observed data,
+and create file in `obs{}/chr{}/ABC/results_observed.txt`.
+3. Run R to get PLS components.
+4. Use ABCtoolbox to transform summary stats to PLS components for simulated and observed data.
+5. Use ABCtoolbox to get posteriors of parameters.
+6. Create parameter file with posterior file.
+
+### Usage
+```bash
+ABC_update_wf.py path_sim param_file_name chrom obs
+```
+where,
+- `path_sim` is the path to simulation output (before `obs{}`)
+- `param_file_name` is the parameter file used to perform the simulations
+- `chrom` is the chromosome number
+- `obs` is the iteration with observed data.
+-------------------------
+
 ## HPC Workflow
 
 For chromosome 1 use `checkque.sh` to submit jobs to Ocelote.
