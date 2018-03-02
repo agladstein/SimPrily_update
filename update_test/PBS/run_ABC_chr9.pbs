@@ -1,7 +1,8 @@
 #!/bin/bash
-#PBS -N ABC9
+#PBS -N ABC1
 #PBS -W group_list=mfh
 #PBS -q standard
+#PBS -J 1-100
 #PBS -l cput=01:00:00
 #PBS -l walltime=01:00:00
 #PBS -l select=1:ncpus=1:mem=6gb
@@ -11,9 +12,12 @@
 module load python/2/2.7.11
 module load R
 
+CHR=9
+OBS=${PBS_ARRAY_INDEX}
+
 cd $PBS_O_WORKDIR
 
-BUCKET_OUT_PATH=/rsgrps/mfh4/Ariella/SimPrily_update/chr9
+BUCKET_OUT_PATH=/rsgrps/mfh4/Ariella/SimPrily_update
 echo "BUCKET_OUT_PATH: ${BUCKET_OUT_PATH}"
 mkdir -p ${BUCKET_OUT_PATH}
 
@@ -21,5 +25,5 @@ RUN_DIR=/home/u15/agladstein/SimPrily_update
 
 cd $RUN_DIR
 
-echo "~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH} update_test/input_files/param_chr9.txt 10"
-~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH} update_test/input_files/param_chr9.txt 10
+echo "~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH} update_test/input_files/param_chr${CHR}.txt ${CHR} ${OBS}"
+~/env/macss_env_ocelote_2.7.11/bin/python update_test/ABC_update_wf.py ${BUCKET_OUT_PATH} update_test/input_files/param_chr${CHR}.txt ${CHR} ${OBS}
