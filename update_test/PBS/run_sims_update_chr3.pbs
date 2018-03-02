@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -N SimUpdate2
+#PBS -N SimUpdate3
 #PBS -W group_list=mfh
 #PBS -q standard
 #PBS -J 1-1000
@@ -11,6 +11,8 @@
 
 module load python/2/2.7.11
 
+CHR=3
+
 cd $PBS_O_WORKDIR
 
 PBS_ID=$(echo ${PBS_JOBID} | cut -d '[' -f1)
@@ -18,7 +20,7 @@ echo "PBS_ID: ${PBS_ID}"
 
 for OBS in {1..100}
 do
-    BUCKET_OUT_PATH=/rsgrps/mfh4/Ariella/SimPrily_update/obs${OBS}/chr2
+    BUCKET_OUT_PATH=/rsgrps/mfh4/Ariella/SimPrily_update/obs${OBS}/chr${CHR}
     echo "BUCKET_OUT_PATH: ${BUCKET_OUT_PATH}"
     mkdir -p ${BUCKET_OUT_PATH}
 
@@ -30,7 +32,7 @@ do
         JOB_ID=${PBS_ID}_${PBS_ARRAY_INDEX}_${i}
         echo "JOB_ID: ${JOB_ID}"
 
-        echo "~/env/macss_env_ocelote_2.7.11/bin/python simprily.py -m update_test/input_files/model_chr2.csv -p update_test/input_files/obs${OBS}/param_chr2.txt -g genetic_map_b37/genetic_map_GRCh37_chr2.txt.macshs -i ${JOB_ID} -o ${BUCKET_OUT_PATH} -v"
-        ~/env/macss_env_ocelote_2.7.11/bin/python simprily.py -m update_test/input_files/model_chr2.csv -p update_test/input_files/obs${OBS}/param_chr2.txt -g genetic_map_b37/genetic_map_GRCh37_chr2.txt.macshs -i ${JOB_ID} -o ${BUCKET_OUT_PATH} -v
+        echo "~/env/macss_env_ocelote_2.7.11/bin/python simprily.py -m update_test/input_files/model_chr${CHR}.csv -p update_test/input_files/obs${OBS}/param_chr${CHR}.txt -g genetic_map_b37/genetic_map_GRCh37_chr${CHR}.txt.macshs -i ${JOB_ID} -o ${BUCKET_OUT_PATH} -v"
+        ~/env/macss_env_ocelote_2.7.11/bin/python simprily.py -m update_test/input_files/model_chr${CHR}.csv -p update_test/input_files/obs${OBS}/param_chr${CHR}.txt -g genetic_map_b37/genetic_map_GRCh37_chr${CHR}.txt.macshs -i ${JOB_ID} -o ${BUCKET_OUT_PATH} -v
     done
 done
