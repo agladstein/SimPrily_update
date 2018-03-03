@@ -131,11 +131,15 @@ Arguments are `goal_number`, `max_que`, `chr`
 
 Then, run ABC with `ABC_update_wf.py` with the appropriate chromosome:
 ```bash
+rsync -za SimPrily_update/ /xdisk/agladstein/SimPrily_update
+cd /xdisk/agladstein/SimPrily_update
 qsub update_test/PBS/run_ABC_chr1.pbs
 ```
 
 Then, run the simulations with the appropriate chromosome:
 ```bash
+rsync -za SimPrily_update/ /xdisk/agladstein/SimPrily_update
+cd /xdisk/agladstein/SimPrily_update
 qsub update_test/PBS/run_sims_update_chr2.pbs
 ```
 
