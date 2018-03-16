@@ -56,12 +56,12 @@ def create_joint_df(jointPosterior_name):
     return joint_B_A_df
 
 
-def plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat):
+def plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat, results_param_observed):
 
     tbl = np.genfromtxt(jointPosterior_name, names=True)
 
     # density map
-    A, B, z = tbl['Log10_A'], tbl['Log10_B'], tbl['density']
+    A, B, z = tbl['A'], tbl['B'], tbl['density']
     A = np.unique(A)
     B = np.unique(B)
     X, Y = np.meshgrid(A, B)
@@ -74,15 +74,19 @@ def plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat):
     plt.plot(A, A, color='black')
 
     # Scatterplot point
-    B_mode = df_chrs_reformat.loc[df_chrs_reformat['param'] == 'Log10_B']['mode']
-    A_mode = df_chrs_reformat.loc[df_chrs_reformat['param'] == 'Log10_A']['mode']
+    B_mode = df_chrs_reformat.loc[df_chrs_reformat['param'] == 'B']['mode']
+    A_mode = df_chrs_reformat.loc[df_chrs_reformat['param'] == 'A']['mode']
     plt.scatter(A_mode, B_mode, marker='*', facecolor='black', edgecolor='none')
-
+    
+    tbl_true = np.genfromtxt(results_param_observed, names=True)
+    A_true, B_true = tbl_true['A'], tbl_true['B']
+    plt.scatter(A_true, B_true, marker='+', facecolor='black', edgecolor='none')
+    
     # Axes limits and labels
     plt.xlim(np.min(A), np.max(A))
-    plt.xlabel('$\log_{10}$ A')
+    plt.xlabel('A')
 
-    plt.ylabel('$\log_{10}$ B')
+    plt.ylabel('B')
     plt.ylim(np.min(B), np.max(B))
 
     plot_name = '{}.png'.format(jointPosterior_name.strip(''))
@@ -93,11 +97,12 @@ def plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat):
 
 def main():
     jointPosterior_name = argv[1]
-    MarginalPosteriorCharacteristics_name = [2]
-
+    MarginalPosteriorCharacteristics_name = argv[2]
+    results_param_observed = argv[3]
+    
     df_chrs_reformat = reformat_Characteristics(MarginalPosteriorCharacteristics_name)
     joint_B_A_df = create_joint_df(jointPosterior_name)
-    plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat)
+    plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat, results_param_observed)
 
 if __name__ == '__main__':
     main()
