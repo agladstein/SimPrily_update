@@ -49,6 +49,16 @@ def lineplot_estimate_dist(param, combined_PosteriorCharacteristics_observed_df,
     return plot
 
 
+def density_plot(param, PosteriorDensities_df, true_value):
+    density = list(PosteriorDensities_obs1_df)[PosteriorDensities_obs1_df.columns.get_loc(param)+1]
+    plot = ggplot(aes(x = param, y = density, colour = 'chr'), data = PosteriorDensities_df) + \
+        geom_line(size = 2) + \
+        geom_vline(x = true_value, size = 3, colour = 'black') + \
+        scale_color_brewer(type='div', palette=2) + \
+        theme_bw()
+    return plot
+
+
 def main():
     combined_PosteriorCharacteristics_observed_name = argv[1]
     combined_PosteriorDensities_name = argv[2]
