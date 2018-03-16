@@ -8,66 +8,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def read_abc_config(abc_config_name):
-    """
-    Get input files used for ABC and results files output by ABC.
-    :param abc_config_name: The configuration file used to run ABCtoolbox 
-    :return: simName:
-    :return: obsName:
-    :return: outputPrefix:
-    """
-
-    simName = ""
-    obsName = ""
-    outputPrefix = ""
-
-    if os.path.isfile(abc_config_name):
-        print(abc_config_name)
-        abc_config = open(abc_config_name, 'r')
-        for line in abc_config:
-            line_lst = line.split()
-            arg = line_lst[0]
-            if arg == "simName":
-                simName = line.split()[1]
-            if arg == "obsName":
-                obsName = line.split()[1]
-            if arg == "outputPrefix":
-                outputPrefix = line.split()[1]
-        abc_config.close()
-
-    if not simName:
-        print("simName not included in ABCtoolbox config file")
-        exit()
-    if not obsName:
-        print("obsName not included in ABCtoolbox config file")
-        exit()
-    if not outputPrefix:
-        print("outputPrefix not included in ABCtoolbox config file")
-        exit()
-
-    return [simName, obsName, outputPrefix]
-
-
-def get_results_files(outputPrefix):
-    """
-    Define names of ABCtoolbox results files
-    :param outputPrefix: the output prefix provided in the ABCtoolbox config file
-    :return: names of ABCtoolbox output files
-    """
-
-    BestSimsParamStats_name = '{}model0_BestSimsParamStats_Obs0.txt'.format(outputPrefix)
-    MarginalPosteriorDensities_name = '{}model0_MarginalPosteriorDensities_Obs0.txt'.format(outputPrefix)
-    MarginalPosteriorCharacteristics_name = '{}model0_MarginalPosteriorCharacteristics.txt'.format(outputPrefix)
-    jointPosterior_name = '{}model0_jointPosterior_8_9_Obs0.txt'.format(outputPrefix)
-    MarginalPosteriorCharacteristics_reformat_name = '{}model0_MarginalPosteriorCharacteristicsReformat.txt'.format(outputPrefix)
-
-    return [BestSimsParamStats_name,
-            MarginalPosteriorDensities_name,
-            MarginalPosteriorCharacteristics_name,
-            jointPosterior_name,
-            MarginalPosteriorCharacteristics_reformat_name]
-
-
 def reformat_Characteristics(MarginalPosteriorCharacteristics_name):
     """
     reformat the ABCtoolbox output file MarginalPosteriorCharacteristics to a table with parameter as the rows and
@@ -102,9 +42,7 @@ def reformat_Characteristics(MarginalPosteriorCharacteristics_name):
 
     else:
         print('{} does not exist'.format(MarginalPosteriorCharacteristics_name))
-        print('Did you run ABCtoolbox in this directory?')
         exit()
-
     return df_table
 
 
@@ -114,9 +52,7 @@ def create_joint_df(jointPosterior_name):
         joint_B_A_df = pd.read_csv(jointPosterior_name, sep = '\t')
     else:
         print('{} does not exist'.format(jointPosterior_name))
-        print('Did you run ABCtoolbox in this directory?')
         exit()
-
     return joint_B_A_df
 
 
@@ -156,21 +92,11 @@ def plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat):
 
 
 def main():
-    abc_config_name = argv[1]
-
-    [simName, obsName, outputPrefix] = read_abc_config(abc_config_name)
-
-    [BestSimsParamStats_name,
-     MarginalPosteriorDensities_name,
-     MarginalPosteriorCharacteristics_name,
-     jointPosterior_name,
-     MarginalPosteriorCharacteristics_reformat_name] = get_results_files(outputPrefix)
+    jointPosterior_name = argv[1]
+    MarginalPosteriorCharacteristics_name = [2]
 
     df_chrs_reformat = reformat_Characteristics(MarginalPosteriorCharacteristics_name)
-    df_chrs_reformat.to_csv(MarginalPosteriorCharacteristics_reformat_name, sep='\t')
-
     joint_B_A_df = create_joint_df(jointPosterior_name)
-
     plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat)
 
 if __name__ == '__main__':
