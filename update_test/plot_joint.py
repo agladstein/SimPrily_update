@@ -25,7 +25,7 @@ def reformat_Characteristics(MarginalPosteriorCharacteristics_name):
     if os.path.isfile(MarginalPosteriorCharacteristics_name):
         print('parsing {}'.format(MarginalPosteriorCharacteristics_name))
 
-        df = pd.read_csv(MarginalPosteriorCharacteristics_name, sep = '\t').drop('dataSet', 1)
+        df = pd.read_csv(MarginalPosteriorCharacteristics_name, sep = '\t')
         header = list(df)
 
         df_list = []
@@ -43,7 +43,7 @@ def reformat_Characteristics(MarginalPosteriorCharacteristics_name):
     else:
         print('{} does not exist'.format(MarginalPosteriorCharacteristics_name))
         exit()
-    return df_table
+    return [df_table, df]
 
 
 def create_joint_df(jointPosterior_name):
@@ -54,6 +54,19 @@ def create_joint_df(jointPosterior_name):
         print('{} does not exist'.format(jointPosterior_name))
         exit()
     return joint_B_A_df
+
+
+def get_prob_NEA_grtr_NWA(joint_B_A_df):
+    total_density = sum(joint_B_A_df['density'])
+    A_grtr_density = joint_B_A_df[joint_B_A_df['A'] > joint_B_A_df['B']]['density']
+    prob = sum(A_grtr_density)/total_density
+    return prob
+
+
+def print_to_characteristic(prob, df_chrs, MarginalPosteriorCharacteristics_name):
+    df_chrs['A_B_prob'] = prob
+    df_chrs.to_csv(MarginalPosteriorCharacteristics_name, sep='\t')
+    return
 
 
 def plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat, results_param_observed):
@@ -100,8 +113,10 @@ def main():
     MarginalPosteriorCharacteristics_name = argv[2]
     results_param_observed = argv[3]
     
-    df_chrs_reformat = reformat_Characteristics(MarginalPosteriorCharacteristics_name)
+    [df_chrs_reformat, df_chrs] = reformat_Characteristics(MarginalPosteriorCharacteristics_name)
     joint_B_A_df = create_joint_df(jointPosterior_name)
+    prob = get_prob_NEA_grtr_NWA(joint_B_A_df)
+    print_to_characteristic(prob, df_chrs, MarginalPosteriorCharacteristics_name)
     plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat, results_param_observed)
 
 if __name__ == '__main__':
