@@ -10,7 +10,8 @@ def create_PosteriorCharacteristics_df(observed_file_name, PosteriorCharacterist
     PosteriorCharacteristics_observed_df = pd.concat([observed_df, PosteriorCharacteristics_df], axis=1)
     PosteriorCharacteristics_observed_df['obs'] = str(obs)
     PosteriorCharacteristics_observed_df['chr'] = str(chrom)
-    PosteriorCharacteristics_observed_df.drop('dataSet', axis=1, inplace=True)
+    if 'dataSet' in PosteriorCharacteristics_observed_df:
+        PosteriorCharacteristics_observed_df.drop('dataSet', axis=1, inplace=True)
     return PosteriorCharacteristics_observed_df
 
 
