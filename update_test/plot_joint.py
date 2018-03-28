@@ -49,23 +49,23 @@ def reformat_Characteristics(MarginalPosteriorCharacteristics_name):
 def create_joint_df(jointPosterior_name):
 
     if os.path.isfile(jointPosterior_name):
-        joint_B_A_df = pd.read_csv(jointPosterior_name, sep = '\t')
+        joint_B_C_df = pd.read_csv(jointPosterior_name, sep = '\t')
     else:
         print('{} does not exist'.format(jointPosterior_name))
         exit()
-    return joint_B_A_df
+    return joint_B_C_df
 
 
-def get_prob_NEA_grtr_NWA(joint_B_A_df):
-    total_density = sum(joint_B_A_df['density'])
-    A_grtr_density = joint_B_A_df[joint_B_A_df['A'] > joint_B_A_df['B']]['density']
-    prob = sum(A_grtr_density)/total_density
+def get_prob_NEA_grtr_NWA(joint_B_C_df):
+    total_density = sum(joint_B_C_df['density'])
+    B_grtr_density = joint_B_C_df[joint_B_C_df['B'] > joint_B_C_df['C']]['density']
+    prob = sum(B_grtr_density)/total_density
     return prob
 
 
 def print_to_characteristic(prob, df_chrs, MarginalPosteriorCharacteristics_name):
-    df_chrs['A_B_prob'] = prob
-    df_chrs.to_csv(MarginalPosteriorCharacteristics_name, sep='\t')
+    df_chrs['B_C_prob'] = prob
+    df_chrs.to_csv(MarginalPosteriorCharacteristics_name, sep='\t', index=False)
     return
 
 
@@ -74,30 +74,30 @@ def plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat, results_param_obse
     tbl = np.genfromtxt(jointPosterior_name, names=True)
 
     # density map
-    A, B, z = tbl['A'], tbl['B'], tbl['density']
-    A = np.unique(A)
+    C, B, z = tbl['C'], tbl['B'], tbl['density']
+    C = np.unique(C)
     B = np.unique(B)
-    X, Y = np.meshgrid(A, B)
-    Z = z.reshape(len(B), len(A))
+    X, Y = np.meshgrid(C, B)
+    Z = z.reshape(len(B), len(C))
     plt.pcolormesh(X, Y, Z, cmap='viridis')
     colorbar = plt.colorbar()
     colorbar.set_label('Density')
 
     # y = x line
-    plt.plot(A, A, color='black')
+    plt.plot(B, B, color='black')
 
     # Scatterplot point
     B_mode = df_chrs_reformat.loc[df_chrs_reformat['param'] == 'B']['mode']
-    A_mode = df_chrs_reformat.loc[df_chrs_reformat['param'] == 'A']['mode']
-    plt.scatter(A_mode, B_mode, marker='*', facecolor='black', edgecolor='none')
+    C_mode = df_chrs_reformat.loc[df_chrs_reformat['param'] == 'C']['mode']
+    plt.scatter(C_mode, B_mode, marker='*', facecolor='black', edgecolor='none')
     
     tbl_true = np.genfromtxt(results_param_observed, names=True)
-    A_true, B_true = tbl_true['A'], tbl_true['B']
-    plt.scatter(A_true, B_true, marker='+', facecolor='black', edgecolor='none')
+    C_true, B_true = tbl_true['C'], tbl_true['B']
+    plt.scatter(C_true, B_true, marker='+', facecolor='black', edgecolor='none')
     
     # Axes limits and labels
-    plt.xlim(np.min(A), np.max(A))
-    plt.xlabel('A')
+    plt.xlim(np.min(C), np.max(C))
+    plt.xlabel('C')
 
     plt.ylabel('B')
     plt.ylim(np.min(B), np.max(B))
@@ -114,8 +114,8 @@ def main():
     results_param_observed = argv[3]
     
     [df_chrs_reformat, df_chrs] = reformat_Characteristics(MarginalPosteriorCharacteristics_name)
-    joint_B_A_df = create_joint_df(jointPosterior_name)
-    prob = get_prob_NEA_grtr_NWA(joint_B_A_df)
+    joint_B_C_df = create_joint_df(jointPosterior_name)
+    prob = get_prob_NEA_grtr_NWA(joint_B_C_df)
     print_to_characteristic(prob, df_chrs, MarginalPosteriorCharacteristics_name)
     plot_joint_mtpltlb(jointPosterior_name, df_chrs_reformat, results_param_observed)
 
